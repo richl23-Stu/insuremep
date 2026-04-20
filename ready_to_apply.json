@@ -1,0 +1,15 @@
+[
+    {
+        "job": {
+            "company": "Riot Games",
+            "positionName": "Data Analyst, Player Dynamics",
+            "description": "We are seeking a Data Analyst who loves gaming and has strong Python, SQL, and Tableau skills. You will analyze player behavior, matchmaking algorithms, and help define anti-toxicity metrics. Experience in gaming analytics is required.",
+            "url": "https://riot.example.com/jobs/123"
+        },
+        "analysis": {
+            "match_score": 88,
+            "reasoning": "The resume is heavily tailored to gaming analytics using the provided transformations. Strong alignment with required skills (Python, SQL, Tableau) and desired experience (player behavior analysis, anti-toxicity). The project experience is cleverly reframed to reflect relevant game development principles (economic balance, matchmaking). Minor deduction for potentially lacking direct 'gaming analytics' experience, although this is somewhat mitigated by the tailored bullets.",
+            "cover_letter": "Dear [Hiring Manager Name],\n\nI am writing to express my keen interest in the Data Analyst position at your company. My resume demonstrates my proficiency in Python, SQL, and Tableau, skills I've honed through analyzing large datasets and building insightful dashboards in previous roles. Specifically, my experience in engineering ETL pipelines for complex data, coupled with my involvement in fine-tuning AI systems, closely aligns with the need to analyze player telemetry data and contribute to anti-toxicity measures. I'm also an avid gamer with a deep interest in esports analytics and player dynamics.\n\nMoreover, my participation in the Bloomberg Global Quantitative Trading Challenge, where I developed data-driven investment strategies and employed rigorous risk-control constraints, mirrors the challenges of balancing game economies and designing effective matchmaking systems. I am confident that my passion for gaming, combined with my data analysis expertise, makes me a strong candidate to contribute meaningfully to your team's efforts in improving player experiences and fostering a positive gaming environment."
+        }
+    }
+]

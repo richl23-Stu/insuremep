@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.png">
+  <title>CriticalAsset</title>
+  <meta name="description" content="CriticalAsset – Compliance &amp; Asset Management">
+  <meta name="author" content="CriticalAsset">
+
+  <meta property="og:title" content="CriticalAsset">
+  <meta property="og:description" content="CriticalAsset – Compliance &amp; Asset Management">
+  <meta property="og:type" content="website">
+  <meta property="og:image"
+    content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/2543fb8d-4cd3-4121-8291-3d9d3af4c1a1/id-preview-4e340990--f7ea626a-7363-4d21-a143-706f995acc5c.lovable.app-1773420301798.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@CriticalAsset">
+  <meta name="twitter:image"
+    content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/2543fb8d-4cd3-4121-8291-3d9d3af4c1a1/id-preview-4e340990--f7ea626a-7363-4d21-a143-706f995acc5c.lovable.app-1773420301798.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            background: "#0f1923",
+            foreground: "#ffffff",
+            card: "#1f2833",
+            muted: "#0b0c10",
+            primary: "#45a29e",
+            accent: "#66fcf1"
+          }
+        }
+      }
+    }
+  </script>
+  <script defer="" src="https://obligations.criticalasset.tech/~flock.js"
+    data-proxy-url="https://obligations.criticalasset.tech/~api/analytics"></script>
+  <style type="text/css">
+    :where(html[dir="ltr"]),
+    :where([data-sonner-toaster][dir="ltr"]) {
+      --toast-icon-margin-start: -3px;
+      --toast-icon-margin-end: 4px;
+      --toast-svg-margin-start: -1px;
+      --toast-svg-margin-end: 0px;
+      --toast-button-margin-start: auto;
+      --toast-button-margin-end: 0;
+      --toast-close-button-start: 0;
+      --toast-close-button-end: unset;
+      --toast-close-button-transform: translate(-35%, -35%)
+    }
+
+    :where(html[dir="rtl"]),
+    :where([data-sonner-toaster][dir="rtl"]) {
+      --toast-icon-margin-start: 4px;
+      --toast-icon-margin-end: -3px;
+      --toast-svg-margin-start: 0px;
+      --toast-svg-margin-end: -1px;
+      --toast-button-margin-start: 0;
+      --toast-button-margin-end: auto;
+      --toast-close-button-start: unset;
+      --toast-close-button-end: 0;
+      --toast-close-button-transform: translate(35%, -35%)
+    }
+
+    :where([data-sonner-toaster]) {
+      position: fixed;
+      width: var(--width);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+      --gray1: hsl(0, 0%, 99%);
+      --gray2: hsl(0, 0%, 97.3%);
+      --gray3: hsl(0, 0%, 95.1%);
+      --gray4: hsl(0, 0%, 93%);
+      --gray5: hsl(0, 0%, 90.9%);
+      --gray6: hsl(0, 0%, 88.7%);
+      --gray7: hsl(0, 0%, 85.8%);
+      --gray8: hsl(0, 0%, 78%);
+      --gray9: hsl(0, 0%, 56.1%);
+      --gray10: hsl(0, 0%, 52.3%);
+      --gray11: hsl(0, 0%, 43.5%);
+      --gray12: hsl(0, 0%, 9%);
+      --border-radius: 8px;
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      outline: none;
+      z-index: 999999999;
+      transition: transform .4s ease
+    }
+
+    :where([data-sonner-toaster][data-lifted="true"]) {
+      transform: translateY(-10px)
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      :where([data-sonner-toaster][data-lifted="true"]) {
+        transform: none
+      }
+    }
+
+    :where([data-sonner-toaster][data-x-position="right"]) {
+      right: var(--offset-right)
+    }
+
+    :where([data-sonner-toaster][data-x-position="left"]) {
+      left: var(--offset-left)
+    }
+
+    :where([data-sonner-toaster][data-x-position="center"]) {
+      left: 50%;
+      transform: translate(-50%)
+    }
+
+    :where([data-sonner-toaster][data-y-position="top"]) {
+      top: var(--offset-top)
+    }
+
+    :where([data-sonner-toaster][data-y-position="bottom"]) {
+      bottom: var(--offset-bottom)
+    }
+
+    :where([data-sonner-toast]) {
+      --y: translateY(100%);
+      --lift-amount: calc(var(--lift) * var(--gap));
+      z-index: var(--z-index);
+      position: absolute;
+      opacity: 0;
+      transform: var(--y);
+      filter: blur(0);
+      touch-action: none;
+      transition: transform .4s, opacity .4s, height .4s, box-shadow .2s;
+      box-sizing: border-box;
+      outline: none;
+      overflow-wrap: anywhere
+    }
+
+    :where([data-sonner-toast][data-styled="true"]) {
+      padding: 16px;
+      background: var(--normal-bg);
+      border: 1px solid var(--normal-border);
+      color: var(--normal-text);
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 12px #0000001a;
+      width: var(--width);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    :where([data-sonner-toast]:focus-visible) {
+      box-shadow: 0 4px 12px #0000001a, 0 0 0 2px #0003
+    }
+
+    :where([data-sonner-toast][data-y-position="top"]) {
+      top: 0;
+      --y: translateY(-100%);
+      --lift: 1;
+      --lift-amount: calc(1 * var(--gap))
+    }
+
+    :where([data-sonner-toast][data-y-position="bottom"]) {
+      bottom: 0;
+      --y: translateY(100%);
+      --lift: -1;
+      --lift-amount: calc(var(--lift) * var(--gap))
+    }
+
+    :where([data-sonner-toast]) :where([data-description]) {
+      font-weight: 400;
+      line-height: 1.4;
+      color: inherit
+    }
+
+    :where([data-sonner-toast]) :where([data-title]) {
+      font-weight: 500;
+      line-height: 1.5;
+      color: inherit
+    }
+
+    :where([data-sonner-toast]) :where([data-icon]) {
+      display: flex;
+      height: 16px;
+      width: 16px;
+      position: relative;
+      justify-content: flex-start;
+      align-items: center;
+      flex-shrink: 0;
+      margin-left: var(--toast-icon-margin-start);
+      margin-right: var(--toast-icon-margin-end)
+    }
+
+    :where([data-sonner-toast][data-promise="true"]) :where([data-icon])>svg {
+      opacity: 0;
+      transform: scale(.8);
+      transform-origin: center;
+      animation: sonner-fade-in .3s ease forwards
+    }
+
+    :where([data-sonner-toast]) :where([data-icon])>* {
+      flex-shrink: 0
+    }
+
+    :where([data-sonner-toast]) :where([data-icon]) svg {
+      margin-left: var(--toast-svg-margin-start);
+      margin-right: var(--toast-svg-margin-end)
+    }
+
+    :where([data-sonner-toast]) :where([data-content]) {
+      display: flex;
+      flex-direction: column;
+      gap: 2px
+    }
+
+    [data-sonner-toast][data-styled=true] [data-button] {
+      border-radius: 4px;
+      padding-left: 8px;
+      padding-right: 8px;
+      height: 24px;
+      font-size: 12px;
+      color: var(--normal-bg);
+      background: var(--normal-text);
+      margin-left: var(--toast-button-margin-start);
+      margin-right: var(--toast-button-margin-end);
+      border: none;
+      cursor: pointer;
+      outline: none;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      transition: opacity .4s, box-shadow .2s
+    }
+
+    :where([data-sonner-toast]) :where([data-button]):focus-visible {
+      box-shadow: 0 0 0 2px #0006
+    }
+
+    :where([data-sonner-toast]) :where([data-button]):first-of-type {
+      margin-left: var(--toast-button-margin-start);
+      margin-right: var(--toast-button-margin-end)
+    }
+
+    :where([data-sonner-toast]) :where([data-cancel]) {
+      color: var(--normal-text);
+      background: rgba(0, 0, 0, .08)
+    }
+
+    :where([data-sonner-toast][data-theme="dark"]) :where([data-cancel]) {
+      background: rgba(255, 255, 255, .3)
+    }
+
+    :where([data-sonner-toast]) :where([data-close-button]) {
+      position: absolute;
+      left: var(--toast-close-button-start);
+      right: var(--toast-close-button-end);
+      top: 0;
+      height: 20px;
+      width: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      color: var(--gray12);
+      border: 1px solid var(--gray4);
+      transform: var(--toast-close-button-transform);
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 1;
+      transition: opacity .1s, background .2s, border-color .2s
+    }
+
+    [data-sonner-toast] [data-close-button] {
+      background: var(--gray1)
+    }
+
+    :where([data-sonner-toast]) :where([data-close-button]):focus-visible {
+      box-shadow: 0 4px 12px #0000001a, 0 0 0 2px #0003
+    }
+
+    :where([data-sonner-toast]) :where([data-disabled="true"]) {
+      cursor: not-allowed
+    }
+
+    :where([data-sonner-toast]):hover :where([data-close-button]):hover {
+      background: var(--gray2);
+      border-color: var(--gray5)
+    }
+
+    :where([data-sonner-toast][data-swiping="true"]):before {
+      content: "";
+      position: absolute;
+      left: -50%;
+      right: -50%;
+      height: 100%;
+      z-index: -1
+    }
+
+    :where([data-sonner-toast][data-y-position="top"][data-swiping="true"]):before {
+      bottom: 50%;
+      transform: scaleY(3) translateY(50%)
+    }
+
+    :where([data-sonner-toast][data-y-position="bottom"][data-swiping="true"]):before {
+      top: 50%;
+      transform: scaleY(3) translateY(-50%)
+    }
+
+    :where([data-sonner-toast][data-swiping="false"][data-removed="true"]):before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      transform: scaleY(2)
+    }
+
+    :where([data-sonner-toast]):after {
+      content: "";
+      position: absolute;
+      left: 0;
+      height: calc(var(--gap) + 1px);
+      bottom: 100%;
+      width: 100%
+    }
+
+    :where([data-sonner-toast][data-mounted="true"]) {
+      --y: translateY(0);
+      opacity: 1
+    }
+
+    :where([data-sonner-toast][data-expanded="false"][data-front="false"]) {
+      --scale: var(--toasts-before) * .05 + 1;
+      --y: translateY(calc(var(--lift-amount) * var(--toasts-before))) scale(calc(-1 * var(--scale)));
+      height: var(--front-toast-height)
+    }
+
+    :where([data-sonner-toast])>* {
+      transition: opacity .4s
+    }
+
+    :where([data-sonner-toast][data-expanded="false"][data-front="false"][data-styled="true"])>* {
+      opacity: 0
+    }
+
+    :where([data-sonner-toast][data-visible="false"]) {
+      opacity: 0;
+      pointer-events: none
+    }
+
+    :where([data-sonner-toast][data-mounted="true"][data-expanded="true"]) {
+      --y: translateY(calc(var(--lift) * var(--offset)));
+      height: var(--initial-height)
+    }
+
+    :where([data-sonner-toast][data-removed="true"][data-front="true"][data-swipe-out="false"]) {
+      --y: translateY(calc(var(--lift) * -100%));
+      opacity: 0
+    }
+
+    :where([data-sonner-toast][data-removed="true"][data-front="false"][data-swipe-out="false"][data-expanded="true"]) {
+      --y: translateY(calc(var(--lift) * var(--offset) + var(--lift) * -100%));
+      opacity: 0
+    }
+
+    :where([data-sonner-toast][data-removed="true"][data-front="false"][data-swipe-out="false"][data-expanded="false"]) {
+      --y: translateY(40%);
+      opacity: 0;
+      transition: transform .5s, opacity .2s
+    }
+
+    :where([data-sonner-toast][data-removed="true"][data-front="false"]):before {
+      height: calc(var(--initial-height) + 20%)
+    }
+
+    [data-sonner-toast][data-swiping=true] {
+      transform: var(--y) translateY(var(--swipe-amount-y, 0px)) translate(var(--swipe-amount-x, 0px));
+      transition: none
+    }
+
+    [data-sonner-toast][data-swiped=true] {
+      user-select: none
+    }
+
+    [data-sonner-toast][data-swipe-out=true][data-y-position=bottom],
+    [data-sonner-toast][data-swipe-out=true][data-y-position=top] {
+      animation-duration: .2s;
+      animation-timing-function: ease-out;
+      animation-fill-mode: forwards
+    }
+
+    [data-sonner-toast][data-swipe-out=true][data-swipe-direction=left] {
+      animation-name: swipe-out-left
+    }
+
+    [data-sonner-toast][data-swipe-out=true][data-swipe-direction=right] {
+      animation-name: swipe-out-right
+    }
+
+    [data-sonner-toast][data-swipe-out=true][data-swipe-direction=up] {
+      animation-name: swipe-out-up
+    }
+
+    [data-sonner-toast][data-swipe-out=true][data-swipe-direction=down] {
+      animation-name: swipe-out-down
+    }
+
+    @keyframes swipe-out-left {
+      0% {
+        transform: var(--y) translate(var(--swipe-amount-x));
+        opacity: 1
+      }
+
+      to {
+        transform: var(--y) translate(calc(var(--swipe-amount-x) - 100%));
+        opacity: 0
+      }
+    }
+
+    @keyframes swipe-out-right {
+      0% {
+        transform: var(--y) translate(var(--swipe-amount-x));
+        opacity: 1
+      }
+
+      to {
+        transform: var(--y) translate(calc(var(--swipe-amount-x) + 100%));
+        opacity: 0
+      }
+    }
+
+    @keyframes swipe-out-up {
+      0% {
+        transform: var(--y) translateY(var(--swipe-amount-y));
+        opacity: 1
+      }
+
+      to {
+        transform: var(--y) translateY(calc(var(--swipe-amount-y) - 100%));
+        opacity: 0
+      }
+    }
+
+    @keyframes swipe-out-down {
+      0% {
+        transform: var(--y) translateY(var(--swipe-amount-y));
+        opacity: 1
+      }
+
+      to {
+        transform: var(--y) translateY(calc(var(--swipe-amount-y) + 100%));
+        opacity: 0
+      }
+    }
+
+    @media (max-width: 600px) {
+      [data-sonner-toaster] {
+        position: fixed;
+        right: var(--mobile-offset-right);
+        left: var(--mobile-offset-left);
+        width: 100%
+      }
+
+      [data-sonner-toaster][dir=rtl] {
+        left: calc(var(--mobile-offset-left) * -1)
+      }
+
+      [data-sonner-toaster] [data-sonner-toast] {
+        left: 0;
+        right: 0;
+        width: calc(100% - var(--mobile-offset-left) * 2)
+      }
+
+      [data-sonner-toaster][data-x-position=left] {
+        left: var(--mobile-offset-left)
+      }
+
+      [data-sonner-toaster][data-y-position=bottom] {
+        bottom: var(--mobile-offset-bottom)
+      }
+
+      [data-sonner-toaster][data-y-position=top] {
+        top: var(--mobile-offset-top)
+      }
+
+      [data-sonner-toaster][data-x-position=center] {
+        left: var(--mobile-offset-left);
+        right: var(--mobile-offset-right);
+        transform: none
+      }
+    }
+
+    [data-sonner-toaster][data-theme=light] {
+      --normal-bg: #fff;
+      --normal-border: var(--gray4);
+      --normal-text: var(--gray12);
+      --success-bg: hsl(143, 85%, 96%);
+      --success-border: hsl(145, 92%, 91%);
+      --success-text: hsl(140, 100%, 27%);
+      --info-bg: hsl(208, 100%, 97%);
+      --info-border: hsl(221, 91%, 91%);
+      --info-text: hsl(210, 92%, 45%);
+      --warning-bg: hsl(49, 100%, 97%);
+      --warning-border: hsl(49, 91%, 91%);
+      --warning-text: hsl(31, 92%, 45%);
+      --error-bg: hsl(359, 100%, 97%);
+      --error-border: hsl(359, 100%, 94%);
+      --error-text: hsl(360, 100%, 45%)
+    }
+
+    [data-sonner-toaster][data-theme=light] [data-sonner-toast][data-invert=true] {
+      --normal-bg: #000;
+      --normal-border: hsl(0, 0%, 20%);
+      --normal-text: var(--gray1)
+    }
+
+    [data-sonner-toaster][data-theme=dark] [data-sonner-toast][data-invert=true] {
+      --normal-bg: #fff;
+      --normal-border: var(--gray3);
+      --normal-text: var(--gray12)
+    }
+
+    [data-sonner-toaster][data-theme=dark] {
+      --normal-bg: #000;
+      --normal-bg-hover: hsl(0, 0%, 12%);
+      --normal-border: hsl(0, 0%, 20%);
+      --normal-border-hover: hsl(0, 0%, 25%);
+      --normal-text: var(--gray1);
+      --success-bg: hsl(150, 100%, 6%);
+      --success-border: hsl(147, 100%, 12%);
+      --success-text: hsl(150, 86%, 65%);
+      --info-bg: hsl(215, 100%, 6%);
+      --info-border: hsl(223, 100%, 12%);
+      --info-text: hsl(216, 87%, 65%);
+      --warning-bg: hsl(64, 100%, 6%);
+      --warning-border: hsl(60, 100%, 12%);
+      --warning-text: hsl(46, 87%, 65%);
+      --error-bg: hsl(358, 76%, 10%);
+      --error-border: hsl(357, 89%, 16%);
+      --error-text: hsl(358, 100%, 81%)
+    }
+
+    [data-sonner-toaster][data-theme=dark] [data-sonner-toast] [data-close-button] {
+      background: var(--normal-bg);
+      border-color: var(--normal-border);
+      color: var(--normal-text)
+    }
+
+    [data-sonner-toaster][data-theme=dark] [data-sonner-toast] [data-close-button]:hover {
+      background: var(--normal-bg-hover);
+      border-color: var(--normal-border-hover)
+    }
+
+    [data-rich-colors=true][data-sonner-toast][data-type=success],
+    [data-rich-colors=true][data-sonner-toast][data-type=success] [data-close-button] {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success-text)
+    }
+
+    [data-rich-colors=true][data-sonner-toast][data-type=info],
+    [data-rich-colors=true][data-sonner-toast][data-type=info] [data-close-button] {
+      background: var(--info-bg);
+      border-color: var(--info-border);
+      color: var(--info-text)
+    }
+
+    [data-rich-colors=true][data-sonner-toast][data-type=warning],
+    [data-rich-colors=true][data-sonner-toast][data-type=warning] [data-close-button] {
+      background: var(--warning-bg);
+      border-color: var(--warning-border);
+      color: var(--warning-text)
+    }
+
+    [data-rich-colors=true][data-sonner-toast][data-type=error],
+    [data-rich-colors=true][data-sonner-toast][data-type=error] [data-close-button] {
+      background: var(--error-bg);
+      border-color: var(--error-border);
+      color: var(--error-text)
+    }
+
+    .sonner-loading-wrapper {
+      --size: 16px;
+      height: var(--size);
+      width: var(--size);
+      position: absolute;
+      inset: 0;
+      z-index: 10
+    }
+
+    .sonner-loading-wrapper[data-visible=false] {
+      transform-origin: center;
+      animation: sonner-fade-out .2s ease forwards
+    }
+
+    .sonner-spinner {
+      position: relative;
+      top: 50%;
+      left: 50%;
+      height: var(--size);
+      width: var(--size)
+    }
+
+    .sonner-loading-bar {
+      animation: sonner-spin 1.2s linear infinite;
+      background: var(--gray11);
+      border-radius: 6px;
+      height: 8%;
+      left: -10%;
+      position: absolute;
+      top: -3.9%;
+      width: 24%
+    }
+
+    .sonner-loading-bar:nth-child(1) {
+      animation-delay: -1.2s;
+      transform: rotate(.0001deg) translate(146%)
+    }
+
+    .sonner-loading-bar:nth-child(2) {
+      animation-delay: -1.1s;
+      transform: rotate(30deg) translate(146%)
+    }
+
+    .sonner-loading-bar:nth-child(3) {
+      animation-delay: -1s;
+      transform: rotate(60deg) translate(146%)
+    }
+
+    .sonner-loading-bar:nth-child(4) {
+      animation-delay: -.9s;
+      transform: rotate(90deg) translate(146%)
+    }
+
+    .sonner-loading-bar:nth-child(5) {
+      animation-delay: -.8s;
+      transform: rotate(120deg) translate(146%)
+    }
+
+    .sonner-loading-bar:nth-child(6) {
+      animation-delay: -.7s;
+      transform: rotate(150deg) translate(146%)
+    }
+
+    .sonner-loading-bar:nth-child(7) {
+      animation-delay: -.6s;
+      transform: rotate(180deg) translate(146%)
+    }
+
+    .sonner-loading-bar:nth-child(8) {
+      animation-delay: -.5s;
+      transform: rotate(210deg) translate(146%)
+    }
+
+    .sonner-loading-bar:nth-child(9) {
+      animation-delay: -.4s;
+      transform: rotate(240deg) translate(146%)
+    }
+
+    .sonner-loading-bar:nth-child(10) {
+      animation-delay: -.3s;
+      transform: rotate(270deg) translate(146%)
+    }
+
+    .sonner-loading-bar:nth-child(11) {
+      animation-delay: -.2s;
+      transform: rotate(300deg) translate(146%)
+    }
+
+    .sonner-loading-bar:nth-child(12) {
+      animation-delay: -.1s;
+      transform: rotate(330deg) translate(146%)
+    }
+
+    @keyframes sonner-fade-in {
+      0% {
+        opacity: 0;
+        transform: scale(.8)
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1)
+      }
+    }
+
+    @keyframes sonner-fade-out {
+      0% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      to {
+        opacity: 0;
+        transform: scale(.8)
+      }
+    }
+
+    @keyframes sonner-spin {
+      0% {
+        opacity: 1
+      }
+
+      to {
+        opacity: .15
+      }
+    }
+
+    @media (prefers-reduced-motion) {
+
+      [data-sonner-toast],
+      [data-sonner-toast]>*,
+      .sonner-loading-bar {
+        transition: none !important;
+        animation: none !important
+      }
+    }
+
+    .sonner-loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transform-origin: center;
+      transition: opacity .2s, transform .2s
+    }
+
+    .sonner-loader[data-visible=false] {
+      opacity: 0;
+      transform: scale(.8) translate(-50%, -50%)
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <section aria-label="Notifications alt+T" tabindex="-1" aria-live="polite" aria-relevant="additions text"
+      aria-atomic="false">
+      <ol dir="ltr" tabindex="-1" class="toaster group" data-sonner-toaster="true" data-theme="dark"
+        data-y-position="bottom" data-lifted="false" data-x-position="right"
+        style="--front-toast-height: 54px; --width: 356px; --gap: 8px; --offset-top: 32px; --offset-right: 32px; --offset-bottom: 32px; --offset-left: 32px; --mobile-offset-top: 16px; --mobile-offset-right: 16px; --mobile-offset-bottom: 16px; --mobile-offset-left: 16px;">
+        <li tabindex="0"
+          class="group w-full flex items-start gap-3 rounded-xl border border-white/10 bg-[#0f1923]/95 backdrop-blur-xl p-4 shadow-2xl shadow-black/40 text-white font-sans border-[hsl(152,60%,38%)]/30"
+          data-sonner-toast="" data-rich-colors="false" data-styled="false" data-mounted="true" data-promise="false"
+          data-swiped="false" data-removed="false" data-visible="true" data-y-position="bottom" data-x-position="right"
+          data-index="0" data-front="true" data-swiping="false" data-dismissible="true" data-type="success"
+          data-swipe-out="false" data-expanded="false"
+          style="--index: 0; --toasts-before: 0; --z-index: 1; --offset: 0px; --initial-height: 54px;"><button
+            aria-label="Close toast" data-disabled="false" data-close-button="true"
+            class="absolute right-2 top-2 rounded-md p-1 text-white/30 hover:text-white/70 transition-opacity"><svg
+              xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-x h-3.5 w-3.5">
+              <path d="M18 6 6 18"></path>
+              <path d="m6 6 12 12"></path>
+            </svg></button>
+          <div data-icon="" class=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-circle-check h-5 w-5 text-[hsl(152,60%,48%)] shrink-0 mt-0.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg></div>
+          <div data-content="" class="">
+            <div data-title="" class="text-sm font-semibold text-white">Signed in successfully</div>
+          </div>
+        </li>
+      </ol>
+    </section>
+    <div class="flex h-screen overflow-hidden bg-background">
+      <div class="flex-1 flex flex-col min-h-0">
+        <header class="flex items-center justify-between px-8 py-3 border-b bg-card">
+          <div class="flex items-center gap-3 min-w-0"><img src="/logo.png" alt="CriticalAsset" class="h-7"></div>
+          <div class="flex items-center gap-2 shrink-0"><button
+              class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 gap-1.5"><svg
+                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-log-out h-3 w-3">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" x2="9" y1="12" y2="12"></line>
+              </svg> Sign Out</button></div>
+        </header>
+        <main class="flex-1 overflow-y-auto">
+          <div class="mx-auto px-8 py-10 max-w-6xl">
+            <div class="space-y-10">
+              <div>
+                <h2 class="text-lg font-semibold text-foreground mb-1">Tools</h2>
+                <p class="text-sm text-muted-foreground mb-4">Global tools that apply across all projects.</p>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3"><button
+                    class="group rounded-xl border bg-card p-4 text-left hover:shadow-md hover:border-primary/30 transition-all">
+                    <div
+                      class="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-library h-4 w-4 text-primary">
+                        <path d="m16 6 4 14"></path>
+                        <path d="M12 6v14"></path>
+                        <path d="M8 8v12"></path>
+                        <path d="M4 4v16"></path>
+                      </svg></div>
+                    <h3 class="font-semibold text-sm text-foreground">Asset Catalog</h3>
+                    <p class="text-xs text-muted-foreground mt-1">Browse &amp; manage the master asset catalog</p>
+                  </button><button
+                    class="group rounded-xl border bg-card p-4 text-left hover:shadow-md hover:border-primary/30 transition-all">
+                    <div
+                      class="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-package h-4 w-4 text-primary">
+                        <path
+                          d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z">
+                        </path>
+                        <path d="M12 22V12"></path>
+                        <path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path>
+                        <path d="m7.5 4.27 9 5.15"></path>
+                      </svg></div>
+                    <h3 class="font-semibold text-sm text-foreground">Asset Obligations</h3>
+                    <p class="text-xs text-muted-foreground mt-1">View obligations by asset type</p>
+                  </button><button
+                    class="group rounded-xl border bg-card p-4 text-left hover:shadow-md hover:border-primary/30 transition-all">
+                    <div
+                      class="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-camera h-4 w-4 text-primary">
+                        <path
+                          d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z">
+                        </path>
+                        <circle cx="12" cy="13" r="3"></circle>
+                      </svg></div>
+                    <h3 class="font-semibold text-sm text-foreground">Field Onboarding</h3>
+                    <p class="text-xs text-muted-foreground mt-1">Field photo capture &amp; onboarding</p>
+                  </button><button
+                    class="group rounded-xl border bg-card p-4 text-left hover:shadow-md hover:border-primary/30 transition-all">
+                    <div
+                      class="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-flask-conical h-4 w-4 text-primary">
+                        <path
+                          d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2">
+                        </path>
+                        <path d="M8.5 2h7"></path>
+                        <path d="M7 16h10"></path>
+                      </svg></div>
+                    <h3 class="font-semibold text-sm text-foreground">Obligations Workbench</h3>
+                    <p class="text-xs text-muted-foreground mt-1">AI obligation extraction &amp; validation</p>
+                  </button><button
+                    class="group rounded-xl border bg-card p-4 text-left hover:shadow-md hover:border-primary/30 transition-all">
+                    <div
+                      class="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-wrench h-4 w-4 text-primary">
+                        <path
+                          d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+                        </path>
+                      </svg></div>
+                    <h3 class="font-semibold text-sm text-foreground">Warranty Explorer</h3>
+                    <p class="text-xs text-muted-foreground mt-1">Browse warranty &amp; OEM obligations by trade and
+                      asset</p>
+                  </button><button
+                    class="group rounded-xl border bg-card p-4 text-left hover:shadow-md hover:border-primary/30 transition-all">
+                    <div
+                      class="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-shield h-4 w-4 text-primary">
+                        <path
+                          d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z">
+                        </path>
+                      </svg></div>
+                    <h3 class="font-semibold text-sm text-foreground">Cyber Security</h3>
+                    <p class="text-xs text-muted-foreground mt-1">Minimal cyber security obligation baseline &amp;
+                      coverage</p>
+                  </button><button
+                    class="group rounded-xl border bg-card p-4 text-left hover:shadow-md hover:border-primary/30 transition-all">
+                    <div
+                      class="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-book-open h-4 w-4 text-primary">
+                        <path d="M12 7v14"></path>
+                        <path
+                          d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z">
+                        </path>
+                      </svg></div>
+                    <h3 class="font-semibold text-sm text-foreground">Users Guide</h3>
+                    <p class="text-xs text-muted-foreground mt-1">How to use the platform</p>
+                  </button></div>
+              </div>
+              <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h1 class="text-3xl font-bold text-foreground tracking-tight">Projects</h1>
+                    <p class="text-sm text-muted-foreground mt-1">0 compliance projects</p>
+                  </div>
+                  <div class="flex items-center gap-2"><button
+                      class="inline-flex items-center justify-center whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 gap-1.5 text-xs"><svg
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-list h-3.5 w-3.5">
+                        <path d="M3 12h.01"></path>
+                        <path d="M3 18h.01"></path>
+                        <path d="M3 6h.01"></path>
+                        <path d="M8 12h13"></path>
+                        <path d="M8 18h13"></path>
+                        <path d="M8 6h13"></path>
+                      </svg>Group by Organization</button><button
+                      class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 gap-2"><svg
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-building2 h-4 w-4">
+                        <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
+                        <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
+                        <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
+                        <path d="M10 6h4"></path>
+                        <path d="M10 10h4"></path>
+                        <path d="M10 14h4"></path>
+                        <path d="M10 18h4"></path>
+                      </svg> Portfolio Discovery</button><button
+                      class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 gap-2"><svg
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-plus h-4 w-4">
+                        <path d="M5 12h14"></path>
+                        <path d="M12 5v14"></path>
+                      </svg> New Site</button></div>
+                </div>
+                <div class="text-center py-16">
+                  <div class="space-y-4">
+                    <div class="mx-auto w-16 h-16 rounded-2xl bg-muted flex items-center justify-center"><svg
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-folder-open h-8 w-8 text-muted-foreground">
+                        <path
+                          d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2">
+                        </path>
+                      </svg></div>
+                    <div>
+                      <p class="font-medium text-foreground">No projects yet</p>
+                      <p class="text-sm text-muted-foreground mt-1">Create your first compliance project to get started.
+                      </p>
+                    </div><button
+                      class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 gap-2"><svg
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-plus h-4 w-4">
+                        <path d="M5 12h14"></path>
+                        <path d="M12 5v14"></path>
+                      </svg> Create First Site</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- INJECTED INTERACTIVITY SCRIPT -->
+  <input type="file" id="imageUpload" style="display: none;" accept="image/*">
+  <script>
+    const fileInput = document.getElementById('imageUpload');
+    const btns = document.querySelectorAll('button');
+    let onboardBtn = null;
+
+    // Look for the exact "Field Onboarding" button
+    btns.forEach(b => {
+      if (b.textContent.includes('Field Onboarding')) onboardBtn = b;
+    });
+
+    if (onboardBtn) {
+      onboardBtn.onclick = () => fileInput.click();
+    }
+
+    fileInput.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const originalHTML = onboardBtn.innerHTML;
+      onboardBtn.innerHTML = "<h3 style='color: #66fcf1; padding: 10px; font-weight: bold;'>AI Analyzing grid...</h3>";
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const res = await fetch('http://127.0.0.1:5001/api/vision', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.error) throw new Error(data.error);
+
+        const projectsDiv = document.querySelector('.text-center.py-16');
+        if (projectsDiv) {
+          projectsDiv.innerHTML = `
+              <div style="background: #1f2833; padding: 25px; border-radius: 8px; text-align: left; border-left: 6px solid #45a29e; max-width: 800px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+                <h2 style="color:#66fcf1; font-size:1.4em; margin-bottom:10px; display: flex; align-items: center; gap: 8px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  Agentic Grid Vision Analysis Complete
+                </h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                    <div>
+                        <p style="color: #8892b0; font-size: 0.9em; margin-bottom: 3px;">Identified Asset Type</p>
+                        <h3 style="color: white; font-size: 1.1em; font-weight: 500;">${data.asset_type}</h3>
+                    </div>
+                    <div>
+                        <p style="color: #8892b0; font-size: 0.9em; margin-bottom: 3px;">System Group</p>
+                        <h3 style="color: white; font-size: 1.1em; font-weight: 500;">${data.system_group}</h3>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <p style="color: #8892b0; font-size: 0.9em; margin-bottom: 3px;">AI Observations</p>
+                    <p style="color: #c5c6c7; line-height: 1.5;">${data.observations}</p>
+                </div>
+                <hr style="margin: 20px 0; border-color: #333;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <p style="color: #8892b0; font-size: 0.9em;">Valve Accessible / Emergency SOP</p>
+                        <p style="color: ${data.valve_accessible ? '#45a29e' : '#ff4b4b'}; font-weight: bold; font-size: 1.1em;">${data.valve_accessible ? 'Yes ✓' : 'No ❌'}</p>
+                    </div>
+                    <div>
+                        <p style="color: #8892b0; font-size: 0.9em;">Overall Risk Score</p>
+                        <p style="color: ${data.risk_tier === 'High' ? '#ff4b4b' : '#e6a822'}; font-weight: bold; font-size: 1.1em;">${data.risk_score} / 10 (${data.risk_tier} Tier)</p>
+                    </div>
+                    <div>
+                        <p style="color: #8892b0; font-size: 0.9em;">Detect Leak?</p>
+                        <p style="color: ${data.visual_leak_detected ? '#ff4b4b' : '#45a29e'}; font-weight: bold; font-size: 1.1em;">${data.visual_leak_detected ? 'Yes ⚠️' : 'None ✓'}</p>
+                    </div>
+                    <div>
+                        <p style="color: #8892b0; font-size: 0.9em;">Detect Corrosion?</p>
+                        <p style="color: ${data.visual_corrosion_detected ? '#e6a822' : '#45a29e'}; font-weight: bold; font-size: 1.1em;">${data.visual_corrosion_detected ? 'Yes ⚠️' : 'None ✓'}</p>
+                    </div>
+                </div>
+              </div>
+            `;
+        }
+      } catch (err) {
+        alert("Error connecting to Gemini Vision API Backend: " + err.message);
+      }
+
+      onboardBtn.innerHTML = originalHTML; // Reset UI
+    };
+  </script>
+</body>
+
+</html>

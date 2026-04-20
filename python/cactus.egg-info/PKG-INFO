@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: cactus
+Version: 0.1.0
+Summary: Cactus Python tools
+Requires-Python: >=3.10
+Requires-Dist: torch
+Requires-Dist: transformers
+Requires-Dist: numpy
+Requires-Dist: huggingface-hub
+Provides-Extra: vlm
+Requires-Dist: Pillow; extra == "vlm"
+Requires-Dist: num2words; extra == "vlm"
+Requires-Dist: torchvision; extra == "vlm"
+Provides-Extra: lora
+Requires-Dist: peft; extra == "lora"
