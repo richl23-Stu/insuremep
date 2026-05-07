@@ -5,3 +5,6 @@ google-generativeai
 requests
 python-dotenv
 markdown-pdf
+fastapi
+uvicorn
+python-multipart
