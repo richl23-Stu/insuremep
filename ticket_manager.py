@@ -156,5 +156,21 @@ def update_ticket_status(ticket_id: str, new_status: str, notes: str) -> str:
             
     return f"Successfully updated ticket {ticket_id} to status '{new_status.upper()}'. Notes appended."
 
+def clear_all_tickets() -> str:
+    """
+    Delete all tickets from the database. Use with caution!
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM tickets")
+        conn.commit()
+    except Exception as e:
+        return f"Error clearing tickets: {e}"
+    finally:
+        if 'conn' in locals():
+            conn.close()
+    return "All tickets have been cleared from the system."
+
 # Run table init automatically when imported
 init_tickets_db()

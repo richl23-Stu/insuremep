@@ -6,7 +6,7 @@ from test_end_to_end import analyze_image_with_gemini
 from rl_sop_integration import train_q_learning
 from google import genai
 from google.genai import types
-from ticket_manager import search_sops, create_ticket, get_open_tickets, update_ticket_status
+from ticket_manager import search_sops, create_ticket, get_open_tickets, update_ticket_status, clear_all_tickets
 import sqlite3
 
 def get_sop_details(sop_code):
@@ -220,12 +220,12 @@ try:
         st.dataframe(data_list, use_container_width=True)
         
         # Simple button to close tickets
-        open_tickets = [r for r in rows if r[4] == 'OPEN']
+        open_tickets = [d for d in data_list if d.get('Status') == 'OPEN']
         if open_tickets:
             st.markdown("**Quick Close Ticket:**")
             c1, c2 = st.columns([3, 1])
             with c1:
-                selected_ticket = st.selectbox("Select an OPEN ticket to close:", [f"{t[0]} - {t[1]}" for t in open_tickets], label_visibility="collapsed")
+                selected_ticket = st.selectbox("Select an OPEN ticket to close:", [f"{d['Ticket ID']} - {d['Asset']}" for d in open_tickets], label_visibility="collapsed")
             with c2:
                 if st.button("✅ Mark as Closed", use_container_width=True):
                     t_id = selected_ticket.split(" - ")[0]
@@ -234,6 +234,14 @@ try:
                     st.rerun()
     else:
         st.info("No tickets found in the system.")
+    
+    # Add a "Clear All" button in a small expander at the bottom
+    with st.expander("🛠️ System Maintenance"):
+        if st.button("🗑️ Clear All Tickets (Factory Reset Dashboard)", type="secondary", use_container_width=True):
+            res = clear_all_tickets()
+            st.success(res)
+            st.rerun()
+
     conn.close()
 except Exception as e:
     st.warning(f"Dashboard unavailable. Please initialize the database. {e}")
