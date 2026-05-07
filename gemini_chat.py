@@ -14,7 +14,7 @@ def main():
         # One-off query: python gemini_chat.py "What is 2+2?"
         prompt = " ".join(sys.argv[1:])
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=prompt
         )
         print(f"\nGemini: {response.text}")
@@ -28,7 +28,7 @@ def main():
                     break
                 
                 response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-2.5-flash",
                     contents=user_input
                 )
                 print(f"\nGemini: {response.text}")

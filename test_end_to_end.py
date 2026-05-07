@@ -32,16 +32,29 @@ AGENTIC GRID VISION: Mentally divide the image into a 2x2 grid (Top-Left, Top-Ri
   "confidence": <float 0.0-1.0>
 }
 """
+    import time
+    
     with open(image_path, "rb") as f:
         image_bytes = f.read()
 
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=[
-            types.Part.from_text(text=prompt),
-            types.Part.from_bytes(data=image_bytes, mime_type="image/png"),
-        ]
-    )
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=[
+                    types.Part.from_text(text=prompt),
+                    types.Part.from_bytes(data=image_bytes, mime_type="image/png"),
+                ]
+            )
+            break
+        except Exception as e:
+            if attempt == max_retries - 1:
+                raise e
+            if "503" in str(e) or "429" in str(e) or "UNAVAILABLE" in str(e) or "INTERNAL" in str(e):
+                time.sleep(2)
+            else:
+                raise e
 
     raw = response.text.strip()
     if raw.startswith("```"):

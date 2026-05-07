@@ -1,0 +1,8 @@
+streamlit
+numpy
+google-genai
+google-generativeai
+requests
+python-dotenv
+markdown-pdf
+sqlite3-binary # Sometimes needed for certain environments, but standard sqlite3 is usually built-in

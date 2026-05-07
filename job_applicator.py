@@ -42,7 +42,7 @@ You must return a JSON block with NO MARKDOWN ticks:
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=[sys_prompt]
         )
         # Parse the JSON

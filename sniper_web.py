@@ -263,7 +263,8 @@ if st.button(button_text, type="primary"):
             model = genai.GenerativeModel('gemini-2.5-flash')
             response = model.generate_content(prompt, stream=True)
             
-            st.markdown("### 🤖 Auto-Generated Cold Email:")
+            output_name = "Cover Letter" if "Cover Letter" in output_type else "Cold Email"
+            st.markdown(f"### 🤖 Auto-Generated {output_name}:")
             
             message_placeholder = st.empty()
             full_response = ""
