@@ -39,7 +39,35 @@ def load_rl_model():
 q_table, rl_env = load_rl_model()
 
 # Must be the first Streamlit command
-st.set_page_config(layout="wide", page_title="InsureMEP RL Decision Engine", page_icon="⚙️")
+st.set_page_config(layout="wide", page_title="InsureMEP RL Decision Engine", page_icon="🌵")
+
+# --- PWA & Mobile Optimization ---
+import streamlit.components.v1 as components
+
+pwa_manifest = """
+{
+  "name": "InsureMEP Mobile",
+  "short_name": "InsureMEP",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#008080",
+  "theme_color": "#008080",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3063/3063822.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+"""
+
+st.markdown(f"""
+    <link rel="manifest" href="data:application/json;base64,{os.popen('echo ' + pwa_manifest + ' | base64').read().strip()}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+""", unsafe_allow_html=True)
 
 # Header with Logo
 lcol, rcol = st.columns([1, 8], vertical_alignment="center")
