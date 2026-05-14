@@ -1,8 +1,10 @@
+import os
 import sqlite3
 import uuid
 from datetime import datetime
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DB_PATH = 'insuremep_sops.db'
+DB_PATH = os.path.join(BASE_DIR, os.path.join(BASE_DIR, "insuremep_sops.db"))
 
 def init_tickets_db():
     """Initializes the tickets table in the SOP database if it does not exist."""
@@ -29,6 +31,12 @@ def init_tickets_db():
 
         try:
             cursor.execute("ALTER TABLE tickets ADD COLUMN location TEXT DEFAULT 'Unknown';")
+            conn.commit()
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+            
+        try:
+            cursor.execute("ALTER TABLE tickets ADD COLUMN assign_id TEXT DEFAULT 'Unassigned';")
             conn.commit()
         except sqlite3.OperationalError:
             pass  # Column already exists
@@ -71,7 +79,7 @@ def search_sops(keyword: str) -> str:
         output += f"- SOP Code: {row[0]} | Name: {row[1]} | Condition: {row[2]} | Action: {row[3]} | Priority: {row[4]}\n"
     return output
 
-def create_ticket(asset_id: str, description: str, sop_code: str, location: str = 'Unknown') -> str:
+def create_ticket(asset_id: str, description: str, sop_code: str, location: str = 'Unknown', assign_id: str = 'Unassigned') -> str:
     """
     Create a maintenance ticket for an asset and link it to an SOP code.
     
@@ -89,9 +97,9 @@ def create_ticket(asset_id: str, description: str, sop_code: str, location: str 
         cursor = conn.cursor()
         
         cursor.execute("""
-            INSERT INTO tickets (ticket_id, asset_id, description, sop_code, location)
-            VALUES (?, ?, ?, ?, ?)
-        """, (ticket_id, asset_id, description, sop_code, location))
+            INSERT INTO tickets (ticket_id, asset_id, description, sop_code, location, assign_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (ticket_id, asset_id, description, sop_code, location, assign_id))
         conn.commit()
     except Exception as e:
         return f"Error creating ticket: {e}"
@@ -108,7 +116,7 @@ def get_open_tickets() -> str:
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("SELECT ticket_id, asset_id, description, sop_code, location, status, notes, created_at FROM tickets WHERE status = 'OPEN'")
+        cursor.execute("SELECT ticket_id, asset_id, description, sop_code, location, assign_id, status, notes, created_at FROM tickets WHERE status = 'OPEN'")
         results = cursor.fetchall()
     except Exception as e:
         return f"Error retrieving tickets: {e}"
@@ -121,7 +129,7 @@ def get_open_tickets() -> str:
         
     output = f"Found {len(results)} OPEN ticket(s):\n"
     for row in results:
-        output += f"- Ticket: {row[0]} | Asset: {row[1]} | Desc: {row[2]} | SOP: {row[3]} | Loc: {row[4]} | Date: {row[7]}\n"
+        output += f"- Ticket: {row[0]} | Asset: {row[1]} | Desc: {row[2]} | SOP: {row[3]} | Loc: {row[4]} | Assign ID: {row[5]} | Date: {row[8]}\n"
     return output
 
 def update_ticket_status(ticket_id: str, new_status: str, notes: str) -> str:

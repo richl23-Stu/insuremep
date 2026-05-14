@@ -8,10 +8,11 @@ from google import genai
 from google.genai import types
 from ticket_manager import search_sops, create_ticket, get_open_tickets, update_ticket_status, clear_all_tickets
 import sqlite3
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def get_sop_details(sop_code):
     try:
-        conn = sqlite3.connect('insuremep_sops.db')
+        conn = sqlite3.connect(os.path.join(BASE_DIR, os.path.join(BASE_DIR, "insuremep_sops.db")))
         c = conn.cursor()
         c.execute("SELECT sop_name, condition_type FROM sop_catalog WHERE sop_code=?", (sop_code,))
         row = c.fetchone()
@@ -39,41 +40,13 @@ def load_rl_model():
 q_table, rl_env = load_rl_model()
 
 # Must be the first Streamlit command
-st.set_page_config(layout="wide", page_title="InsureMEP RL Decision Engine", page_icon="🌵")
-
-# --- PWA & Mobile Optimization ---
-import streamlit.components.v1 as components
-
-pwa_manifest = """
-{
-  "name": "InsureMEP Mobile",
-  "short_name": "InsureMEP",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#008080",
-  "theme_color": "#008080",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/3063/3063822.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
-"""
-
-st.markdown(f"""
-    <link rel="manifest" href="data:application/json;base64,{os.popen('echo ' + pwa_manifest + ' | base64').read().strip()}">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-""", unsafe_allow_html=True)
+st.set_page_config(layout="wide", page_title="InsureMEP RL Decision Engine", page_icon="⚙️")
 
 # Header with Logo
 lcol, rcol = st.columns([1, 8], vertical_alignment="center")
 with lcol:
     try:
-        st.image("assets/logo.png", use_container_width=True)
+        st.image(os.path.join(BASE_DIR, os.path.join(BASE_DIR, "assets/logo.png")), use_container_width=True)
     except:
         pass
 with rcol:
@@ -83,14 +56,17 @@ col1, col2 = st.columns([1, 1], gap="large")
 
 with col1:
     st.subheader("1. Multimodal Onboarding Intake")
+    asset_status = st.radio("Asset Status", ["New Asset (Onboarding)", "Current Asset (Maintenance)"], horizontal=True)
+    if "Current" in asset_status:
+        st.caption("Visual Label Only: Select from existing asset catalog (Coming Soon)")
     st.info("Upload an equipment photo. Gemini Vision AI will automatically detect asset type, leaks, corrosion, and risk level.")
     
     floor_plans = {
-        "Floor 1 (Ground)": "assets/IMG_4999.JPG",
-        "Floor 2": "assets/IMG_5001.JPG",
-        "Floor 3": "assets/IMG_5002.JPG",
-        "Floor 4": "assets/IMG_5003.JPG",
-        "Floor 5 (Roof)": "assets/IMG_5004.JPG"
+        "Floor 1 (Ground)": os.path.join(BASE_DIR, os.path.join(BASE_DIR, os.path.join(BASE_DIR, "assets/IMG_4999.JPG"))),
+        "Floor 2": os.path.join(BASE_DIR, os.path.join(BASE_DIR, os.path.join(BASE_DIR, "assets/IMG_5001.JPG"))),
+        "Floor 3": os.path.join(BASE_DIR, os.path.join(BASE_DIR, os.path.join(BASE_DIR, "assets/IMG_5002.JPG"))),
+        "Floor 4": os.path.join(BASE_DIR, os.path.join(BASE_DIR, os.path.join(BASE_DIR, "assets/IMG_5003.JPG"))),
+        "Floor 5 (Roof)": os.path.join(BASE_DIR, os.path.join(BASE_DIR, os.path.join(BASE_DIR, "assets/IMG_5004.JPG")))
     }
     
     ROOM_DATA = {
@@ -164,7 +140,12 @@ with col2:
                 sop_name, condition_type = get_sop_details(state_code)
                 
                 # Render the right panel dynamically
-                st.info(f"🤖 Gemini Observations: {data.get('observations', 'N/A')}")
+                tags = data.get('tags', [])
+                if isinstance(tags, list):
+                    tags_str = ", ".join(tags)
+                else:
+                    tags_str = str(tags)
+                st.info(f"🏷️ AI Tags: **{tags_str}**")
                 
                 with st.expander("Show Raw SQL ETL Output"):
                     st.json(data)
@@ -199,11 +180,12 @@ with col2:
 # 🔍 {best_action}
                 """)
                 
+                assign_input = st.text_input("Enter Assign ID (optional):", value="Unassigned")
                 if st.button("🎟️ 1-Click Create Ticket based on RL Action", type="primary"):
-                    desc = f"Visual Findings: {data.get('observations', 'N/A')}. RL Action: {best_action}."
+                    desc = f"Visual Tags: {tags_str}. RL Action: {best_action}."
                     asset = data.get('asset_type', 'Unknown_Asset')
                     full_location = f"{selected_floor} - {selected_loc}"
-                    res = create_ticket(asset_id=asset, description=desc, sop_code=state_code, location=full_location)
+                    res = create_ticket(asset_id=asset, description=desc, sop_code=state_code, location=full_location, assign_id=assign_input)
                     st.success(res)
                 
                 with st.expander("Q-Values Breakdown"):
@@ -226,13 +208,16 @@ st.subheader("📊 Live Tickets Dashboard")
 st.markdown("Monitor real-time maintenance requests and statuses.")
 
 try:
-    conn = sqlite3.connect('insuremep_sops.db')
+    conn = sqlite3.connect(os.path.join(BASE_DIR, os.path.join(BASE_DIR, "insuremep_sops.db")))
     cursor = conn.cursor()
     # Check if notes column exists
     cursor.execute("PRAGMA table_info(tickets)")
     columns = [col[1] for col in cursor.fetchall()]
     
-    if "location" in columns and "notes" in columns:
+    if "assign_id" in columns and "location" in columns and "notes" in columns:
+        cursor.execute("SELECT ticket_id, asset_id, description, sop_code, location, assign_id, status, notes, created_at FROM tickets ORDER BY created_at DESC LIMIT 10")
+        cols = ["Ticket ID", "Asset", "Description", "SOP Code", "Location", "Assign ID", "Status", "Notes", "Created At"]
+    elif "location" in columns and "notes" in columns:
         cursor.execute("SELECT ticket_id, asset_id, description, sop_code, location, status, notes, created_at FROM tickets ORDER BY created_at DESC LIMIT 10")
         cols = ["Ticket ID", "Asset", "Description", "SOP Code", "Location", "Status", "Notes", "Created At"]
     elif "notes" in columns:
