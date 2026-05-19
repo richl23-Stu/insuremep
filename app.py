@@ -903,18 +903,26 @@ with tab_maintenance:
                                 f"SOP Name: {active_t['sop_name']}\n"
                                 f"Asset: {active_t['asset_id']}\n"
                                 f"Description: {active_t['description']}\n\n"
-                                "Generate a Mermaid flowchart diagram mapping the troubleshooting flow dictated by this SOP. "
-                                "Output ONLY valid Mermaid code, starting with flowchart TD."
+                                "Generate a Mermaid flowchart diagram mapping the troubleshooting flow for this SOP.\n"
+                                "CRITICAL RULES:\n"
+                                "1. Output ONLY valid Mermaid code, starting with 'flowchart TD'.\n"
+                                "2. Do NOT wrap in markdown code fences (no ``` or ```mermaid).\n"
+                                "3. Node labels must NOT contain parentheses () or special chars – use square brackets [] for all nodes.\n"
+                                "4. Keep labels short (under 40 characters each).\n"
+                                "5. Use --> for edges and -- label --> for labelled edges."
                             )
                             response = client.models.generate_content(
                                 model="gemini-2.5-flash", contents=prompt_t
                             )
                             m_code = response.text.strip()
-                            if m_code.startswith("```"):
-                                m_code = m_code.split("```")[1]
-                                if m_code.startswith("mermaid"):
-                                    m_code = m_code[7:]
-                            st.session_state[f"mermaid_t_{active_t['ticket_id']}"] = m_code.strip()
+                            
+                            # Robust fence stripper
+                            import re as _re
+                            m_code = _re.sub(r'^```(?:mermaid)?\s*', '', m_code, flags=_re.IGNORECASE)
+                            m_code = _re.sub(r'\s*```\s*$', '', m_code)
+                            m_code = m_code.strip()
+                            
+                            st.session_state[f"mermaid_t_{active_t['ticket_id']}"] = m_code
                         except Exception as e:
                             st.error(f"Flowchart generation failed: {e}")
                             
