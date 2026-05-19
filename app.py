@@ -113,11 +113,42 @@ def render_mermaid(mermaid_code: str, height: int = 380):
         }});
       </script>
       <style>
+        * {{ box-sizing: border-box; }}
         body {{
           margin: 0;
           padding: 0;
           background: transparent;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }}
+        .wrapper {{
+          position: relative;
+        }}
+        .fullscreen-btn {{
+          position: absolute;
+          top: 10px;
+          right: 12px;
+          z-index: 100;
+          background: #1e293b;
+          color: #ffffff;
+          border: none;
+          border-radius: 8px;
+          padding: 6px 12px;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+          transition: background 0.15s ease, transform 0.1s ease;
+          letter-spacing: 0.3px;
+        }}
+        .fullscreen-btn:hover {{
+          background: #334155;
+          transform: scale(1.04);
+        }}
+        .fullscreen-btn:active {{
+          transform: scale(0.97);
         }}
         .mermaid-container {{
           background: #ffffff;
@@ -125,10 +156,32 @@ def render_mermaid(mermaid_code: str, height: int = 380):
           border-radius: 12px;
           border: 2px solid #e2e8f0;
           box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05);
-          overflow-x: auto;
+          overflow: auto;
           display: flex;
           justify-content: flex-start;
-          align-items: center;
+          align-items: flex-start;
+          min-height: 200px;
+        }}
+        .mermaid-container:fullscreen,
+        .mermaid-container:-webkit-full-screen,
+        .mermaid-container:-moz-full-screen {{
+          background: #ffffff;
+          padding: 40px;
+          border-radius: 0;
+          border: none;
+          overflow: auto;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          width: 100vw;
+          height: 100vh;
+        }}
+        .mermaid-container:fullscreen .mermaid svg,
+        .mermaid-container:-webkit-full-screen .mermaid svg {{
+          min-width: unset !important;
+          width: 100% !important;
+          height: auto !important;
+          max-height: 90vh;
         }}
         .mermaid {{
           display: flex;
@@ -156,11 +209,45 @@ def render_mermaid(mermaid_code: str, height: int = 380):
       </style>
     </head>
     <body>
-      <div class="mermaid-container">
-        <pre class="mermaid">
+      <div class="wrapper">
+        <button class="fullscreen-btn" id="fs-btn" onclick="toggleFullscreen()">
+          <span id="fs-icon">⛶</span>
+          <span id="fs-label">Full Screen</span>
+        </button>
+        <div class="mermaid-container" id="mermaid-box">
+          <pre class="mermaid">
 {escaped}
-        </pre>
+          </pre>
+        </div>
       </div>
+      <script>
+        function toggleFullscreen() {{
+          const el = document.getElementById('mermaid-box');
+          const btn = document.getElementById('fs-btn');
+          const icon = document.getElementById('fs-icon');
+          const label = document.getElementById('fs-label');
+          const isFs = document.fullscreenElement || document.webkitFullscreenElement;
+          if (!isFs) {{
+            const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen;
+            if (req) req.call(el);
+            icon.textContent = '✕';
+            label.textContent = 'Exit';
+          }} else {{
+            const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen;
+            if (exit) exit.call(document);
+            icon.textContent = '⛶';
+            label.textContent = 'Full Screen';
+          }}
+        }}
+        document.addEventListener('fullscreenchange', () => {{
+          const icon = document.getElementById('fs-icon');
+          const label = document.getElementById('fs-label');
+          if (!document.fullscreenElement) {{
+            icon.textContent = '⛶';
+            label.textContent = 'Full Screen';
+          }}
+        }});
+      </script>
     </body>
     </html>
     """
