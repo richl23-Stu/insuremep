@@ -94,6 +94,63 @@ def load_rl_model():
     os.chdir(orig_dir)
     return q_table, env
 
+def init_asset_catalog():
+    """Create asset_catalog table if not exists."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS asset_catalog (
+            asset_id        TEXT PRIMARY KEY,
+            asset_name      TEXT NOT NULL,
+            system_group    TEXT,
+            location        TEXT,
+            floor           TEXT,
+            room            TEXT,
+            risk_score      INTEGER DEFAULT 0,
+            risk_tier       TEXT DEFAULT 'Low',
+            sop_code        TEXT,
+            tags            TEXT,
+            estimated_age   INTEGER,
+            leak_detected   BOOLEAN DEFAULT 0,
+            corrosion_found BOOLEAN DEFAULT 0,
+            valve_accessible BOOLEAN DEFAULT 0,
+            onboarded_by    TEXT DEFAULT 'Unassigned',
+            onboarded_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            notes           TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+init_asset_catalog()
+
+def save_asset_to_registry(asset_name, system_group, location, floor, room,
+                            risk_score, risk_tier, sop_code, tags, estimated_age,
+                            leak_detected, corrosion_found, valve_accessible,
+                            onboarded_by, notes=""):
+    """Insert or update an asset record in asset_catalog."""
+    import uuid as _uuid
+    asset_id = f"AST-{_uuid.uuid4().hex[:8].upper()}"
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO asset_catalog
+            (asset_id, asset_name, system_group, location, floor, room,
+             risk_score, risk_tier, sop_code, tags, estimated_age,
+             leak_detected, corrosion_found, valve_accessible,
+             onboarded_by, notes)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        """, (asset_id, asset_name, system_group, location, floor, room,
+               risk_score, risk_tier, sop_code, tags, estimated_age,
+               int(leak_detected), int(corrosion_found), int(valve_accessible),
+               onboarded_by, notes))
+        conn.commit()
+        conn.close()
+        return asset_id
+    except Exception as e:
+        return f"ERROR: {e}"
+
 def render_mermaid(mermaid_code: str, height: int = 380):
     escaped = html.escape(mermaid_code)
     html_code = f"""
@@ -719,10 +776,11 @@ with st.sidebar:
         st.rerun()
 
 # ── Interactive Tabs ─────────────────────────────────────────────────────────
-tab_onboarding, tab_maintenance, tab_blueprints = st.tabs([
-    "📸 Onboarding Asset", 
-    "📋 Current Maintenance", 
-    "🗺️ Floor Plans"
+tab_onboarding, tab_maintenance, tab_blueprints, tab_registry = st.tabs([
+    "📸 Onboarding Asset",
+    "📋 Current Maintenance",
+    "🗺️ Floor Plans",
+    "📦 Asset Registry",
 ])
 
 # ── Tab 1: Onboarding Asset ──────────────────────────────────────────────────
@@ -826,22 +884,56 @@ with tab_onboarding:
                         st.info(f"**🔍 Condition Details:** {condition_type}")
                         st.warning(f"**🎯 RL Recommended Action:** **{best_action}** (SOP Action: {recommended_action.upper()})")
                         
-                    # Create ticket from diagnostics
+                    # ── Save to Asset Registry + Create Ticket ──
                     st.divider()
-                    st.markdown("### 🎟️ Orchestration Ticket Onboarding")
-                    assign_input = st.text_input("Assign ID / Operator:", value="Unassigned", key="ob_assign_id")
-                    if st.button("Create Onboarding Ticket", type="primary", key="btn_create_ob_ticket"):
-                        desc = f"Tags: {tags_str}. RL Action: {best_action}. Description: Onboarded visual inspection."
-                        asset = data.get("asset_type", "Unknown_Asset")
-                        full_location = f"{selected_floor} - {selected_room}"
-                        res = create_ticket(
-                            asset_id=asset,
-                            description=desc,
-                            sop_code=state_code,
-                            location=full_location,
-                            assign_id=assign_input,
-                        )
-                        st.success(res)
+                    st.markdown("### 🎟️ Actions")
+                    act_c1, act_c2 = st.columns(2)
+                    
+                    with act_c1:
+                        st.markdown("**Save to Asset Registry**")
+                        ob_operator = st.text_input("👤 Operator / Assign ID:", value="Unassigned", key="ob_assign_id")
+                        ob_notes = st.text_area("📝 Notes (optional):", value="", height=68, key="ob_notes_input")
+                        if st.button("💾 Save to Asset Registry", type="primary", key="btn_save_registry", use_container_width=True):
+                            saved_id = save_asset_to_registry(
+                                asset_name=data.get("asset_type", "Unknown_Asset"),
+                                system_group=sys_grp,
+                                location=f"{selected_floor} - {selected_room}",
+                                floor=selected_floor,
+                                room=selected_room,
+                                risk_score=data.get("risk_score", 0),
+                                risk_tier=data.get("risk_tier", "Low"),
+                                sop_code=state_code,
+                                tags=tags_str,
+                                estimated_age=data.get("estimated_age_years") or 0,
+                                leak_detected=leak,
+                                corrosion_found=corr,
+                                valve_accessible=valve,
+                                onboarded_by=ob_operator,
+                                notes=ob_notes,
+                            )
+                            if saved_id.startswith("AST-"):
+                                st.success(f"✅ Asset saved! Registry ID: **{saved_id}**")
+                                st.info("Switch to the **📦 Asset Registry** tab to see all records.")
+                            else:
+                                st.error(saved_id)
+                    
+                    with act_c2:
+                        st.markdown("**Create Maintenance Ticket**")
+                        ticket_assign = st.text_input("👤 Ticket Assign ID:", value="Unassigned", key="ob_ticket_assign_id")
+                        st.write("")
+                        st.write("")
+                        if st.button("🎟️ Create Onboarding Ticket", type="secondary", key="btn_create_ob_ticket", use_container_width=True):
+                            desc = f"Tags: {tags_str}. RL Action: {best_action}. Description: Onboarded visual inspection."
+                            asset = data.get("asset_type", "Unknown_Asset")
+                            full_location = f"{selected_floor} - {selected_room}"
+                            res = create_ticket(
+                                asset_id=asset,
+                                description=desc,
+                                sop_code=state_code,
+                                location=full_location,
+                                assign_id=ticket_assign,
+                            )
+                            st.success(res)
                         
                 except Exception as e:
                     st.error(f"Error parsing image: {e}")
@@ -1163,6 +1255,141 @@ The UCI facilities contact is actively preparing the digital twin layer containi
 - HVAC duct runs and damper control valves
             """
         )
+
+# ── Tab 4: Asset Registry ────────────────────────────────────────────────────
+with tab_registry:
+    st.header("📦 Asset Registry")
+    st.caption("A persistent record of all assets onboarded by your team. Filter, search, and track status across the facility.")
+
+    # ── Load all assets from DB ──
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT asset_id, asset_name, system_group, floor, room,
+                   risk_score, risk_tier, sop_code, tags,
+                   leak_detected, corrosion_found,
+                   onboarded_by, onboarded_at, notes
+            FROM asset_catalog
+            ORDER BY onboarded_at DESC
+        """)
+        registry_rows = cursor.fetchall()
+        conn.close()
+    except Exception as e:
+        registry_rows = []
+        st.error(f"Failed to load Asset Registry: {e}")
+
+    # ── Summary stats bar ──
+    total_assets = len(registry_rows)
+    high_risk     = sum(1 for r in registry_rows if r[5] >= 7)
+    leak_count    = sum(1 for r in registry_rows if r[9])
+    corr_count    = sum(1 for r in registry_rows if r[10])
+
+    sm1, sm2, sm3, sm4 = st.columns(4)
+    sm1.metric("🏷️ Total Assets", total_assets)
+    sm2.metric("🚨 High Risk (7+)", high_risk, delta=None)
+    sm3.metric("💧 Leak Detected", leak_count)
+    sm4.metric("⚙️ Corrosion Found", corr_count)
+
+    st.divider()
+
+    if not registry_rows:
+        st.info("📭 No assets have been saved to the registry yet. Head to **📸 Onboarding Asset** and click **💾 Save to Asset Registry** after running diagnostics.")
+    else:
+        # ── Filters ──
+        with st.expander("🔍 Filter Assets", expanded=True):
+            fc1, fc2, fc3 = st.columns(3)
+            all_systems = sorted(set(r[2] for r in registry_rows if r[2]))
+            all_floors  = sorted(set(r[3] for r in registry_rows if r[3]))
+            all_tiers   = sorted(set(r[6] for r in registry_rows if r[6]))
+
+            filt_sys  = fc1.multiselect("System Group",  all_systems, default=all_systems, key="reg_filt_sys")
+            filt_floor = fc2.multiselect("Floor",        all_floors,  default=all_floors,  key="reg_filt_floor")
+            filt_tier  = fc3.multiselect("Risk Tier",    all_tiers,   default=all_tiers,   key="reg_filt_tier")
+            search_kw  = st.text_input("🔎 Search by asset name, operator, or tags:", key="reg_search")
+
+        filtered = [
+            r for r in registry_rows
+            if (not filt_sys   or r[2] in filt_sys)
+            and (not filt_floor or r[3] in filt_floor)
+            and (not filt_tier  or r[6] in filt_tier)
+            and (not search_kw  or search_kw.lower() in (str(r[1])+str(r[8])+str(r[11])).lower())
+        ]
+
+        st.caption(f"Showing **{len(filtered)}** of **{total_assets}** registered assets")
+        st.divider()
+
+        # ── Asset Cards ──
+        for r in filtered:
+            (
+                asset_id, asset_name, system_group, floor, room,
+                risk_score, risk_tier, sop_code, tags,
+                leak_detected, corrosion_found,
+                onboarded_by, onboarded_at, notes
+            ) = r
+
+            risk_color = (
+                "#fee2e2" if risk_score >= 7
+                else "#fef3c7" if risk_score >= 4
+                else "#dcfce7"
+            )
+            risk_badge = (
+                "🔴 High" if risk_score >= 7
+                else "🟡 Medium" if risk_score >= 4
+                else "🟢 Low"
+            )
+
+            with st.container(border=True):
+                card_top, card_actions = st.columns([4, 1])
+                with card_top:
+                    st.markdown(
+                        f"""<div style='display:flex; align-items:center; gap:12px;'>
+                            <div style='background:{risk_color}; border-radius:10px; padding:8px 16px;
+                                        font-weight:700; font-size:15px; border:1.5px solid #e5e7eb;'>
+                                📦 {asset_name}
+                            </div>
+                            <span style='color:#64748b; font-size:13px;'>ID: <code>{asset_id}</code></span>
+                            <span style='color:#64748b; font-size:13px;'>|</span>
+                            <span style='font-size:13px; font-weight:600;'>{risk_badge} Risk ({risk_score}/10)</span>
+                        </div>""",
+                        unsafe_allow_html=True
+                    )
+                    st.markdown("")
+                    info_c1, info_c2, info_c3 = st.columns(3)
+                    info_c1.markdown(f"**🛠️ System:** {system_group or 'N/A'}")
+                    info_c1.markdown(f"**📍 Location:** {floor} · Room {room}")
+                    info_c2.markdown(f"**📖 SOP:** `{sop_code or 'N/A'}`")
+                    info_c2.markdown(f"**👤 Onboarded by:** {onboarded_by or 'Unassigned'}")
+                    info_c3.markdown(f"**💧 Leak:** {'🚨 Yes' if leak_detected else '✔️ No'}  |  **⚙️ Corrosion:** {'🚨 Yes' if corrosion_found else '✔️ No'}")
+                    info_c3.markdown(f"**🏷️ Tags:** {tags or '—'}")
+                    if notes:
+                        st.caption(f"📝 Notes: {notes}")
+                    st.caption(f"🕐 Onboarded at: {onboarded_at}")
+
+                with card_actions:
+                    if st.button("🗑️ Remove", key=f"reg_del_{asset_id}", type="secondary", use_container_width=True):
+                        try:
+                            conn = sqlite3.connect(DB_PATH)
+                            conn.execute("DELETE FROM asset_catalog WHERE asset_id = ?", (asset_id,))
+                            conn.commit()
+                            conn.close()
+                            st.success(f"Asset {asset_id} removed.")
+                            st.rerun()
+                        except Exception as ex:
+                            st.error(f"Delete failed: {ex}")
+
+    st.divider()
+    with st.expander("🔧 Registry Maintenance"):
+        if st.button("🗑️ Clear Entire Asset Registry", type="secondary"):
+            try:
+                conn = sqlite3.connect(DB_PATH)
+                conn.execute("DELETE FROM asset_catalog")
+                conn.commit()
+                conn.close()
+                st.success("Asset Registry cleared.")
+                st.rerun()
+            except Exception as ex:
+                st.error(f"Failed: {ex}")
 
 # ── System Maintenance and Factory Reset ──────────────────────────────────────
 st.divider()
