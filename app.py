@@ -113,84 +113,28 @@ def render_mermaid(mermaid_code: str, height: int = 380):
         }});
       </script>
       <style>
-        * {{ box-sizing: border-box; }}
+        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
-          margin: 0;
-          padding: 0;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
           background: transparent;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }}
-        .wrapper {{
+
+        /* ── Normal card wrapper ─────────────────────────────── */
+        .card {{
           position: relative;
-        }}
-        .fullscreen-btn {{
-          position: absolute;
-          top: 10px;
-          right: 12px;
-          z-index: 100;
-          background: #1e293b;
-          color: #ffffff;
-          border: none;
-          border-radius: 8px;
-          padding: 6px 12px;
-          font-size: 13px;
-          font-weight: 600;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-          transition: background 0.15s ease, transform 0.1s ease;
-          letter-spacing: 0.3px;
-        }}
-        .fullscreen-btn:hover {{
-          background: #334155;
-          transform: scale(1.04);
-        }}
-        .fullscreen-btn:active {{
-          transform: scale(0.97);
-        }}
-        .mermaid-container {{
           background: #ffffff;
-          padding: 20px;
           border-radius: 12px;
           border: 2px solid #e2e8f0;
-          box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05);
+          box-shadow: 0 4px 20px -2px rgba(0,0,0,0.07);
           overflow: auto;
-          display: flex;
-          justify-content: flex-start;
-          align-items: flex-start;
-          min-height: 200px;
+          padding: 20px 20px 16px;
         }}
-        .mermaid-container:fullscreen,
-        .mermaid-container:-webkit-full-screen,
-        .mermaid-container:-moz-full-screen {{
-          background: #ffffff;
-          padding: 40px;
-          border-radius: 0;
-          border: none;
-          overflow: auto;
-          display: flex;
-          justify-content: center;
-          align-items: flex-start;
-          width: 100vw;
-          height: 100vh;
-        }}
-        .mermaid-container:fullscreen .mermaid svg,
-        .mermaid-container:-webkit-full-screen .mermaid svg {{
-          min-width: unset !important;
-          width: 100% !important;
-          height: auto !important;
-          max-height: 90vh;
-        }}
-        .mermaid {{
-          display: flex;
-          justify-content: center;
-          align-items: center;
+        .card .diagram-scroll {{
+          overflow-x: auto;
         }}
         .mermaid svg {{
           font-size: 15px !important;
-          min-width: 750px !important;
+          min-width: 700px !important;
           height: auto !important;
         }}
         .node label {{
@@ -201,50 +145,220 @@ def render_mermaid(mermaid_code: str, height: int = 380):
           font-size: 13px !important;
           font-weight: 600 !important;
           color: #374151 !important;
-          background-color: #ffffff !important;
+          background-color: #fff !important;
           padding: 3px 6px !important;
           border-radius: 4px !important;
           border: 1px solid #e5e7eb !important;
         }}
+
+        /* ── Fullscreen button (top-right of card) ───────────── */
+        .fs-open-btn {{
+          position: absolute;
+          top: 10px;
+          right: 12px;
+          background: #1e293b;
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          padding: 6px 14px;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          transition: background 0.15s, transform 0.1s;
+          z-index: 10;
+          letter-spacing: 0.3px;
+        }}
+        .fs-open-btn:hover {{ background: #334155; transform: scale(1.04); }}
+        .fs-open-btn:active {{ transform: scale(0.97); }}
+
+        /* ── Fullscreen Overlay ──────────────────────────────── */
+        #fs-overlay {{
+          display: none;
+          position: fixed;
+          inset: 0;
+          z-index: 99999;
+          background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);
+          flex-direction: column;
+        }}
+        #fs-overlay.active {{
+          display: flex;
+        }}
+
+        /* Top control bar */
+        .fs-bar {{
+          flex-shrink: 0;
+          height: 56px;
+          background: rgba(255,255,255,0.06);
+          border-bottom: 1px solid rgba(255,255,255,0.1);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 24px;
+          backdrop-filter: blur(8px);
+        }}
+        .fs-title {{
+          color: #f1f5f9;
+          font-size: 15px;
+          font-weight: 700;
+          letter-spacing: 0.3px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }}
+        .fs-title-badge {{
+          background: rgba(99,102,241,0.25);
+          color: #a5b4fc;
+          border: 1px solid rgba(99,102,241,0.4);
+          border-radius: 6px;
+          padding: 2px 8px;
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+        }}
+        .fs-controls {{
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }}
+        .fs-ctrl-btn {{
+          background: rgba(255,255,255,0.1);
+          color: #f1f5f9;
+          border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 8px;
+          padding: 6px 14px;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.15s, transform 0.1s;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }}
+        .fs-ctrl-btn:hover {{ background: rgba(255,255,255,0.2); transform: scale(1.04); }}
+        .fs-ctrl-btn:active {{ transform: scale(0.97); }}
+        .fs-close-btn {{
+          background: rgba(239,68,68,0.15);
+          border-color: rgba(239,68,68,0.3);
+          color: #fca5a5;
+        }}
+        .fs-close-btn:hover {{ background: rgba(239,68,68,0.3); }}
+
+        /* Diagram canvas in fullscreen */
+        .fs-canvas {{
+          flex: 1;
+          overflow: auto;
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          padding: 32px;
+        }}
+        .fs-diagram-card {{
+          background: #ffffff;
+          border-radius: 16px;
+          box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+          padding: 32px 40px;
+          transform-origin: top center;
+          transition: transform 0.2s ease;
+        }}
+        #fs-overlay .mermaid svg {{
+          min-width: unset !important;
+          max-width: 90vw !important;
+          height: auto !important;
+          font-size: 16px !important;
+        }}
+
+        /* Hint bar */
+        .fs-hint {{
+          flex-shrink: 0;
+          text-align: center;
+          padding: 8px;
+          color: rgba(148,163,184,0.7);
+          font-size: 12px;
+        }}
       </style>
     </head>
     <body>
-      <div class="wrapper">
-        <button class="fullscreen-btn" id="fs-btn" onclick="toggleFullscreen()">
-          <span id="fs-icon">⛶</span>
-          <span id="fs-label">Full Screen</span>
+
+      <!-- Normal card view -->
+      <div class="card">
+        <button class="fs-open-btn" onclick="openFullscreen()">
+          ⛶ Full Screen
         </button>
-        <div class="mermaid-container" id="mermaid-box">
-          <pre class="mermaid">
+        <div class="diagram-scroll">
+          <div class="mermaid" id="diagram-normal">
 {escaped}
-          </pre>
+          </div>
         </div>
       </div>
+
+      <!-- Fullscreen Overlay -->
+      <div id="fs-overlay">
+        <div class="fs-bar">
+          <div class="fs-title">
+            🗺️ Diagram Viewer
+            <span class="fs-title-badge">Fullscreen</span>
+          </div>
+          <div class="fs-controls">
+            <button class="fs-ctrl-btn" onclick="adjustZoom(-0.1)">－ Zoom Out</button>
+            <button class="fs-ctrl-btn" onclick="adjustZoom(0.1)">＋ Zoom In</button>
+            <button class="fs-ctrl-btn" onclick="resetZoom()">↺ Reset</button>
+            <button class="fs-ctrl-btn fs-close-btn" onclick="closeFullscreen()">✕ Close</button>
+          </div>
+        </div>
+        <div class="fs-canvas" id="fs-canvas">
+          <div class="fs-diagram-card" id="fs-diagram-card">
+            <div class="mermaid" id="diagram-fs"></div>
+          </div>
+        </div>
+        <div class="fs-hint">Press <kbd style="background:#334155;color:#94a3b8;border-radius:4px;padding:1px 6px;font-size:11px;">ESC</kbd> or click Close to exit fullscreen</div>
+      </div>
+
       <script>
-        function toggleFullscreen() {{
-          const el = document.getElementById('mermaid-box');
-          const btn = document.getElementById('fs-btn');
-          const icon = document.getElementById('fs-icon');
-          const label = document.getElementById('fs-label');
-          const isFs = document.fullscreenElement || document.webkitFullscreenElement;
-          if (!isFs) {{
-            const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen;
-            if (req) req.call(el);
-            icon.textContent = '✕';
-            label.textContent = 'Exit';
-          }} else {{
-            const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen;
-            if (exit) exit.call(document);
-            icon.textContent = '⛶';
-            label.textContent = 'Full Screen';
+        let currentZoom = 1.0;
+
+        function openFullscreen() {{
+          const srcSvg = document.querySelector('#diagram-normal svg');
+          const fsCard = document.getElementById('diagram-fs');
+          if (srcSvg) {{
+            fsCard.innerHTML = '';
+            fsCard.appendChild(srcSvg.cloneNode(true));
+            // Make SVG responsive
+            const svgEl = fsCard.querySelector('svg');
+            if (svgEl) {{
+              svgEl.style.maxWidth = '85vw';
+              svgEl.style.height = 'auto';
+              svgEl.style.display = 'block';
+            }}
           }}
+          currentZoom = 1.0;
+          document.getElementById('fs-diagram-card').style.transform = 'scale(1)';
+          document.getElementById('fs-overlay').classList.add('active');
+          document.body.style.overflow = 'hidden';
         }}
-        document.addEventListener('fullscreenchange', () => {{
-          const icon = document.getElementById('fs-icon');
-          const label = document.getElementById('fs-label');
-          if (!document.fullscreenElement) {{
-            icon.textContent = '⛶';
-            label.textContent = 'Full Screen';
+
+        function closeFullscreen() {{
+          document.getElementById('fs-overlay').classList.remove('active');
+          document.body.style.overflow = '';
+        }}
+
+        function adjustZoom(delta) {{
+          currentZoom = Math.max(0.3, Math.min(3.0, currentZoom + delta));
+          document.getElementById('fs-diagram-card').style.transform = `scale(${{currentZoom}})`;
+        }}
+
+        function resetZoom() {{
+          currentZoom = 1.0;
+          document.getElementById('fs-diagram-card').style.transform = 'scale(1)';
+        }}
+
+        document.addEventListener('keydown', (e) => {{
+          if (e.key === 'Escape' && document.getElementById('fs-overlay').classList.contains('active')) {{
+            closeFullscreen();
           }}
         }});
       </script>
