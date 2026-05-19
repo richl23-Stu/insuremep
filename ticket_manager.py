@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DB_PATH = os.path.join(BASE_DIR, os.path.join(BASE_DIR, "insuremep_sops.db"))
+DB_PATH = os.path.join(BASE_DIR, "insuremep_sops.db")
 
 def init_tickets_db():
     """Initializes the tickets table in the SOP database if it does not exist."""

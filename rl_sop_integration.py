@@ -1,7 +1,9 @@
 import sqlite3
 import numpy as np
+import os
 
-DB_PATH = 'insuremep_sops.db'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, 'insuremep_sops.db')
 
 class InsureMEP_RL_Env:
     def __init__(self):
