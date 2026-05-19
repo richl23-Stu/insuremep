@@ -202,13 +202,17 @@ def build_asset_mermaid(asset_context: dict) -> str:
     lines.append(f"{zone_id} --> {room_id}")
 
     # Main asset
+    cond_preview = html.escape(asset['condition'])
+    if len(cond_preview) > 40:
+        cond_preview = cond_preview[:37] + "..."
+        
     main_label = (
-        f"<div style=\'padding: 10px; text-align: left; font-family: sans-serif; line-height: 1.4;\'>"
-        f"<strong style=\'font-size: 16px; color: #b91c1c; display: block; border-bottom: 2px solid #fca5a5; padding-bottom: 4px; margin-bottom: 6px;\'>🚨 {asset['asset_name']}</strong>"
-        f"<span style=\'font-size: 13px; color: #4b5563;\'>Type:</span> <strong style=\'font-size: 13px; color: #1f2937;\'>{asset['asset_type']}</strong><br/>"
+        f"<div style=\'padding: 10px; text-align: left; font-family: sans-serif; line-height: 1.4; width: 280px; white-space: normal; word-break: break-word;\'>"
+        f"<strong style=\'font-size: 16px; color: #b91c1c; display: block; border-bottom: 2px solid #fca5a5; padding-bottom: 4px; margin-bottom: 6px;\'>🚨 {html.escape(asset['asset_name'])}</strong>"
+        f"<span style=\'font-size: 13px; color: #4b5563;\'>Type:</span> <strong style=\'font-size: 13px; color: #1f2937;\'>{html.escape(asset['asset_type'])}</strong><br/>"
         f"<span style=\'font-size: 13px; color: #4b5563;\'>Risk:</span> <strong style=\'font-size: 13px; color: #dc2626;\'>{asset['risk_score']}/10</strong><br/>"
-        f"<span style=\'font-size: 13px; color: #4b5563;\'>SOP:</span> <code style=\'font-size: 12px; background: #fee2e2; padding: 2px 4px; border-radius: 4px; color: #991b1b;\'>{asset['sop_code']}</code><br/>"
-        f"<span style=\'font-size: 13px; color: #4b5563;\'>Condition:</span> <span style=\'font-size: 12px; font-style: italic; color: #4b5563;\'>{asset['condition']}</span>"
+        f"<span style=\'font-size: 13px; color: #4b5563;\'>SOP:</span> <code style=\'font-size: 12px; background: #fee2e2; padding: 2px 4px; border-radius: 4px; color: #991b1b;\'>{html.escape(asset['sop_code'])}</code><br/>"
+        f"<span style=\'font-size: 13px; color: #4b5563;\'>Condition:</span> <span style=\'font-size: 12px; font-style: italic; color: #4b5563;\'>{cond_preview}</span>"
         f"</div>"
     )
     lines.append(f'{main_id}["{main_label}"]')
@@ -220,12 +224,16 @@ def build_asset_mermaid(asset_context: dict) -> str:
         
         status_color = "#dc2626" if linked["risk_score"] >= 8 else ("#d97706" if linked["risk_score"] >= 5 else "#16a34a")
         
+        status_preview = html.escape(linked["status"])
+        if len(status_preview) > 40:
+            status_preview = status_preview[:37] + "..."
+            
         label = (
-            f"<div style=\'padding: 10px; text-align: left; font-family: sans-serif; line-height: 1.4;\'>"
-            f"<strong style=\'font-size: 15px; color: {status_color}; display: block; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin-bottom: 6px;\'>{linked['asset_name']}</strong>"
-            f"<span style=\'font-size: 12px; color: #4b5563;\'>Type:</span> <strong style=\'font-size: 12px;\'>{linked['asset_type']}</strong><br/>"
+            f"<div style=\'padding: 10px; text-align: left; font-family: sans-serif; line-height: 1.4; width: 240px; white-space: normal; word-break: break-word;\'>"
+            f"<strong style=\'font-size: 15px; color: {status_color}; display: block; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin-bottom: 6px;\'>{html.escape(linked['asset_name'])}</strong>"
+            f"<span style=\'font-size: 12px; color: #4b5563;\'>Type:</span> <strong style=\'font-size: 12px; color: #1f2937;\'>{html.escape(linked['asset_type'])}</strong><br/>"
             f"<span style=\'font-size: 12px; color: #4b5563;\'>Risk:</span> <strong style=\'font-size: 12px; color: {status_color};\'>{linked['risk_score']}/10</strong><br/>"
-            f"<span style=\'font-size: 12px; color: #4b5563;\'>Status:</span> <span style=\'font-size: 11px; font-weight: 500;\'>{linked['status']}</span>"
+            f"<span style=\'font-size: 12px; color: #4b5563;\'>Status:</span> <span style=\'font-size: 11px; font-weight: 500; color: #4b5563;\'>{status_preview}</span>"
             f"</div>"
         )
         relationship = linked["relationship"]
