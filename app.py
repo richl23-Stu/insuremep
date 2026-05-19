@@ -23,6 +23,28 @@ st.set_page_config(
     page_icon="🏗️",
 )
 
+# ── Global CSS Overrides ─────────────────────────────────────────────────────
+st.markdown("""
+<style>
+  /* Bolder, larger tab labels to clearly distinguish each workflow */
+  .stTabs [data-baseweb="tab"] > div {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.3px !important;
+    padding: 8px 18px !important;
+  }
+  .stTabs [aria-selected="true"] > div {
+    color: #1d4ed8 !important;
+  }
+  /* Align Task Inspection Board subheader with the global location bar above */
+  .task-board-header {
+    padding-left: 6px;
+    border-left: 4px solid #2563eb;
+    margin-bottom: 12px;
+  }
+</style>
+""", unsafe_allow_html=True)
+
 # ── Floor plan and room data ─────────────────────────────────────────────────
 FLOOR_PLANS = {
     "Floor 1 (Ground)": os.path.join(BASE_DIR, "assets/IMG_4999.JPG"),
@@ -337,15 +359,35 @@ def render_mermaid(mermaid_code: str, height: int = 380):
           color: rgba(148,163,184,0.7);
           font-size: 12px;
         }}
+
+        /* Interactive badge */
+        .interact-badge {{
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          background: #f0f9ff;
+          color: #0369a1;
+          border: 1px solid #bae6fd;
+          border-radius: 20px;
+          padding: 3px 10px;
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.3px;
+          margin-bottom: 10px;
+          user-select: none;
+        }}
       </style>
     </head>
     <body>
 
       <!-- Normal card view -->
       <div class="card">
-        <button class="fs-open-btn" onclick="openFullscreen()">
-          ⛶ Full Screen
-        </button>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 8px;">
+          <div class="interact-badge">🖱️ Interactive &nbsp;·&nbsp; Scroll to explore &nbsp;·&nbsp; ⛶ Full Screen available</div>
+          <button class="fs-open-btn" onclick="openFullscreen()">
+            ⛶ Full Screen
+          </button>
+        </div>
         <div class="diagram-scroll">
           <div class="mermaid" id="diagram-normal">
 {escaped}
@@ -1115,7 +1157,7 @@ with tab_maintenance:
 
     # Right Column: Detail & Operations
     with col_m2:
-        st.subheader("🔍 Task Inspection Board")
+        st.markdown('<div class="task-board-header"><h3 style="margin:0; padding: 6px 0;">🔍 Task Inspection Board</h3></div>', unsafe_allow_html=True)
         
         selected_id = st.session_state.get("selected_ticket_id")
         active_t = next((t for t in all_tickets if t["ticket_id"] == selected_id), None) if selected_id else None
@@ -1245,7 +1287,7 @@ with tab_blueprints:
         )
         
     st.divider()
-    with st.expander("ℹ️ About SB1 Floor Plans"):
+    with st.expander("ℹ️ About SB1 Floor Plans", expanded=True):
         st.markdown(
             """
 Currently, only **architectural floor plans** are loaded as base templates. 
