@@ -382,16 +382,16 @@ def render_mermaid(mermaid_code: str, height: int = 380):
 
       <!-- Normal card view -->
       <div class="card">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 8px;">
-          <div class="interact-badge">🖱️ Interactive &nbsp;·&nbsp; Scroll to explore &nbsp;·&nbsp; ⛶ Full Screen available</div>
-          <button class="fs-open-btn" onclick="openFullscreen()">
-            ⛶ Full Screen
-          </button>
-        </div>
         <div class="diagram-scroll">
           <div class="mermaid" id="diagram-normal">
 {escaped}
           </div>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-top: 12px; padding-top: 10px; border-top: 1px solid #f1f5f9;">
+          <div class="interact-badge">🖱️ Interactive &nbsp;·&nbsp; Scroll to explore</div>
+          <button class="fs-open-btn" onclick="openFullscreen()">
+            ⛶ Full Screen
+          </button>
         </div>
       </div>
 
