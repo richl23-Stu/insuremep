@@ -106,7 +106,7 @@ def render_mermaid(mermaid_code: str, height: int = 380):
           theme: 'default',
           securityLevel: 'loose',
           flowchart: {{
-            useMaxWidth: true,
+            useMaxWidth: false,
             htmlLabels: true,
             curve: 'basis'
           }}
@@ -117,12 +117,46 @@ def render_mermaid(mermaid_code: str, height: int = 380):
           margin: 0;
           padding: 0;
           background: transparent;
-          font-family: sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }}
+        .mermaid-container {{
+          background: #ffffff;
+          padding: 20px;
+          border-radius: 12px;
+          border: 2px solid #e2e8f0;
+          box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05);
+          overflow-x: auto;
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+        }}
+        .mermaid {{
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }}
+        .mermaid svg {{
+          font-size: 15px !important;
+          min-width: 750px !important;
+          height: auto !important;
+        }}
+        .node label {{
+          font-family: inherit !important;
+          line-height: 1.4 !important;
+        }}
+        .edgeLabel {{
+          font-size: 13px !important;
+          font-weight: 600 !important;
+          color: #374151 !important;
+          background-color: #ffffff !important;
+          padding: 3px 6px !important;
+          border-radius: 4px !important;
+          border: 1px solid #e5e7eb !important;
         }}
       </style>
     </head>
     <body>
-      <div style="background:#fff;padding:14px;border-radius:8px;border:1px solid #e0e0e0;">
+      <div class="mermaid-container">
         <pre class="mermaid">
 {escaped}
         </pre>
@@ -157,11 +191,11 @@ def build_asset_mermaid(asset_context: dict) -> str:
 
     lines = ["flowchart LR"]
 
-    # Location hierarchy
-    lines.append(f'{building_id}["Building: {asset_context["building"]}"]')
-    lines.append(f'{floor_id}["{asset_context["floor"]}"]')
-    lines.append(f'{zone_id}["Zone: {asset_context["zone"]}"]')
-    lines.append(f'{room_id}["Room: {asset_context["room"]}"]')
+    # Location hierarchy with styled HTML labels
+    lines.append(f'{building_id}["<div style=\'padding: 8px; font-weight: bold; font-size: 14px; text-align: center;\'>🏫 Building:<br/>{asset_context["building"]}</div>"]')
+    lines.append(f'{floor_id}["<div style=\'padding: 8px; font-weight: bold; font-size: 14px; text-align: center;\'>🏗️ Floor:<br/>{asset_context["floor"]}</div>"]')
+    lines.append(f'{zone_id}["<div style=\'padding: 8px; font-weight: bold; font-size: 14px; text-align: center;\'>Zone:<br/>{asset_context["zone"]}</div>"]')
+    lines.append(f'{room_id}["<div style=\'padding: 8px; font-weight: bold; font-size: 14px; text-align: center;\'>📍 Room:<br/>{asset_context["room"]}</div>"]')
 
     lines.append(f"{building_id} --> {floor_id}")
     lines.append(f"{floor_id} --> {zone_id}")
@@ -169,11 +203,13 @@ def build_asset_mermaid(asset_context: dict) -> str:
 
     # Main asset
     main_label = (
-        f'{asset["asset_name"]}<br/>'
-        f'Type: {asset["asset_type"]}<br/>'
-        f'Risk: {asset["risk_score"]}/10<br/>'
-        f'SOP: {asset["sop_code"]}<br/>'
-        f'Condition: {asset["condition"]}'
+        f"<div style=\'padding: 10px; text-align: left; font-family: sans-serif; line-height: 1.4;\'>"
+        f"<strong style=\'font-size: 16px; color: #b91c1c; display: block; border-bottom: 2px solid #fca5a5; padding-bottom: 4px; margin-bottom: 6px;\'>🚨 {asset['asset_name']}</strong>"
+        f"<span style=\'font-size: 13px; color: #4b5563;\'>Type:</span> <strong style=\'font-size: 13px; color: #1f2937;\'>{asset['asset_type']}</strong><br/>"
+        f"<span style=\'font-size: 13px; color: #4b5563;\'>Risk:</span> <strong style=\'font-size: 13px; color: #dc2626;\'>{asset['risk_score']}/10</strong><br/>"
+        f"<span style=\'font-size: 13px; color: #4b5563;\'>SOP:</span> <code style=\'font-size: 12px; background: #fee2e2; padding: 2px 4px; border-radius: 4px; color: #991b1b;\'>{asset['sop_code']}</code><br/>"
+        f"<span style=\'font-size: 13px; color: #4b5563;\'>Condition:</span> <span style=\'font-size: 12px; font-style: italic; color: #4b5563;\'>{asset['condition']}</span>"
+        f"</div>"
     )
     lines.append(f'{main_id}["{main_label}"]')
     lines.append(f"{room_id} --> {main_id}")
@@ -181,11 +217,16 @@ def build_asset_mermaid(asset_context: dict) -> str:
     # Linked assets
     for linked in asset_context["linked_assets"]:
         linked_id = clean_id(linked["asset_id"])
+        
+        status_color = "#dc2626" if linked["risk_score"] >= 8 else ("#d97706" if linked["risk_score"] >= 5 else "#16a34a")
+        
         label = (
-            f'{linked["asset_name"]}<br/>'
-            f'Type: {linked["asset_type"]}<br/>'
-            f'Risk: {linked["risk_score"]}/10<br/>'
-            f'{linked["status"]}'
+            f"<div style=\'padding: 10px; text-align: left; font-family: sans-serif; line-height: 1.4;\'>"
+            f"<strong style=\'font-size: 15px; color: {status_color}; display: block; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin-bottom: 6px;\'>{linked['asset_name']}</strong>"
+            f"<span style=\'font-size: 12px; color: #4b5563;\'>Type:</span> <strong style=\'font-size: 12px;\'>{linked['asset_type']}</strong><br/>"
+            f"<span style=\'font-size: 12px; color: #4b5563;\'>Risk:</span> <strong style=\'font-size: 12px; color: {status_color};\'>{linked['risk_score']}/10</strong><br/>"
+            f"<span style=\'font-size: 12px; color: #4b5563;\'>Status:</span> <span style=\'font-size: 11px; font-weight: 500;\'>{linked['status']}</span>"
+            f"</div>"
         )
         relationship = linked["relationship"]
 
@@ -196,11 +237,11 @@ def build_asset_mermaid(asset_context: dict) -> str:
         lines.append(f"class {linked_id} {cls};")
 
     # Classes
-    lines.append("classDef location fill:#e8f1ff,stroke:#2563eb,stroke-width:1px,color:#111827;")
-    lines.append("classDef main fill:#fff1f2,stroke:#dc2626,stroke-width:3px,color:#111827;")
-    lines.append("classDef critical fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#111827;")
-    lines.append("classDef warning fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#111827;")
-    lines.append("classDef normal fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#111827;")
+    lines.append("classDef location fill:#e8f1ff,stroke:#2563eb,stroke-width:2px,color:#111827;")
+    lines.append("classDef main fill:#fff1f2,stroke:#dc2626,stroke-width:4px,color:#111827;")
+    lines.append("classDef critical fill:#fee2e2,stroke:#dc2626,stroke-width:3px,color:#111827;")
+    lines.append("classDef warning fill:#fef3c7,stroke:#d97706,stroke-width:3px,color:#111827;")
+    lines.append("classDef normal fill:#dcfce7,stroke:#16a34a,stroke-width:3px,color:#111827;")
 
     lines.append(f"class {building_id},{floor_id},{zone_id},{room_id} location;")
     lines.append(f"class {main_id} main;")
