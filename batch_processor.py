@@ -8,7 +8,8 @@ from batch_models import (
     AssetRelationship,
     RelationshipType,
     BatchResult,
-    SystemGroup
+    SystemGroup,
+    InspectionMode
 )
 
 # Try to import the existing Gemini vision intake helper
@@ -76,15 +77,51 @@ def run_ai_analysis(filename: str, image_bytes: bytes, use_mock_ai: bool, defaul
                 "confidence": 0.89,
             }
         else:
-            return {
-                "asset_name": "Unknown Asset",
-                "asset_type": "Unknown",
-                "system_group": default_group or SystemGroup.GENERAL,
-                "risk_score": 5,
-                "condition": "Manual Review Required",
-                "sop_code": "HVAC_ROUTINE",
-                "confidence": 0.55,
-            }
+            # Cycle through mock asset profiles based on the filename hash to avoid all generic files returning the exact same "Unknown" asset
+            import hashlib
+            filename_hash = int(hashlib.md5(filename.encode('utf-8')).hexdigest(), 16)
+            profile_idx = filename_hash % 4
+            
+            if profile_idx == 0:
+                return {
+                    "asset_name": "Emergency Control Valve",
+                    "asset_type": "Valve",
+                    "system_group": default_group or SystemGroup.PLUMBING,
+                    "risk_score": 6,
+                    "condition": "Valve accessible and clear of obstructions.",
+                    "sop_code": "PLUMBING_ROUTINE",
+                    "confidence": 0.82,
+                }
+            elif profile_idx == 1:
+                return {
+                    "asset_name": "Circulation Pump P-01",
+                    "asset_type": "Pump",
+                    "system_group": default_group or SystemGroup.HVAC,
+                    "risk_score": 8,
+                    "condition": "Minor vibration detected during cycle.",
+                    "sop_code": "HVAC_ROUTINE",
+                    "confidence": 0.79,
+                }
+            elif profile_idx == 2:
+                return {
+                    "asset_name": "Primary Distribution Piping",
+                    "asset_type": "Pipe",
+                    "system_group": default_group or SystemGroup.PLUMBING,
+                    "risk_score": 7,
+                    "condition": "Surface corrosion found on main elbow joint.",
+                    "sop_code": "PLUMBING_CORROSION",
+                    "confidence": 0.85,
+                }
+            else:
+                return {
+                    "asset_name": "General Infrastructure Asset",
+                    "asset_type": "Infrastructure",
+                    "system_group": default_group or SystemGroup.GENERAL,
+                    "risk_score": 5,
+                    "condition": "Visual inspection shows normal structural condition.",
+                    "sop_code": "ELEC_ROUTINE",
+                    "confidence": 0.75,
+                }
     
     # Real Gemini Vision analysis
     with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(filename)[1] or ".png") as tmp:
@@ -145,11 +182,16 @@ def run_ai_analysis(filename: str, image_bytes: bytes, use_mock_ai: bool, defaul
         "confidence": data.get("confidence", 0.8),
     }
 
-def merge_duplicate_assets(detections: List[AssetDetection]) -> List[AssetDetection]:
+def merge_duplicate_assets(detections: List[AssetDetection], mode: InspectionMode) -> List[AssetDetection]:
     """
     De-duplicate assets by type, system group, and room location.
-    If multiples found, keep the one with higher risk score or higher confidence.
+    If mode is SAME_ASSET_BATCH, we merge all assets of the same type/system/room into one.
+    Otherwise (e.g. room_scan, same_system_batch, mixed_system_batch, floor_scan),
+    each image represents a separate physical asset, so we should NOT merge them.
     """
+    if mode != InspectionMode.SAME_ASSET_BATCH:
+        return detections
+        
     merged = {}
     for d in detections:
         # Match based on: type, system_group, building, floor, zone, room
@@ -294,7 +336,7 @@ def process_batch(
     if progress_callback:
         progress_callback(0.95, "Deduplicating assets & inferring relationships...")
         
-    merged_assets = merge_duplicate_assets(detections)
+    merged_assets = merge_duplicate_assets(detections, session.inspection_mode)
     relationships = infer_relationships(merged_assets)
     summary = summarize_batch(merged_assets, relationships)
     

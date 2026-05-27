@@ -180,5 +180,44 @@ def clear_all_tickets() -> str:
             conn.close()
     return "All tickets have been cleared from the system."
 
+def get_ticket_details(ticket_id: str) -> str:
+    """
+    Retrieve full details of a specific maintenance ticket by its ID (e.g., TCK-A9C51EE6).
+    Use this tool to find details about a ticket, such as who is assigned to it, the SOP linked, location, status, or description.
+    
+    Args:
+        ticket_id: The unique ID of the ticket to retrieve.
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT t.ticket_id, t.asset_id, t.description, t.sop_code, t.location, t.assign_id, t.status, t.notes, t.created_at,
+                   s.sop_name, s.priority_level, s.recommended_action
+            FROM tickets t
+            LEFT JOIN sop_catalog s ON t.sop_code = s.sop_code
+            WHERE t.ticket_id = ?
+        """, (ticket_id.strip(),))
+        row = cursor.fetchone()
+    except Exception as e:
+        return f"Error retrieving ticket details: {e}"
+    finally:
+        if 'conn' in locals():
+            conn.close()
+            
+    if not row:
+        return f"Ticket {ticket_id} not found."
+        
+    output = f"Ticket Details for {row[0]}:\n"
+    output += f"- Asset ID: {row[1]}\n"
+    output += f"- Description: {row[2]}\n"
+    output += f"- SOP Code: {row[3]} | SOP Name: {row[9] or 'N/A'} | Recommended Action: {row[11] or 'N/A'}\n"
+    output += f"- Location: {row[4]}\n"
+    output += f"- Assignee (Assign ID): {row[5]}\n"
+    output += f"- Status: {row[6]}\n"
+    output += f"- Notes: {row[7] or 'None'}\n"
+    output += f"- Created At: {row[8]}\n"
+    return output
+
 # Run table init automatically when imported
 init_tickets_db()

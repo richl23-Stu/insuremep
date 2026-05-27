@@ -14,7 +14,7 @@ from test_end_to_end import analyze_image_with_gemini
 from rl_sop_integration import train_q_learning
 from google import genai
 from google.genai import types
-from ticket_manager import search_sops, create_ticket, get_open_tickets, update_ticket_status, clear_all_tickets
+from ticket_manager import search_sops, create_ticket, get_open_tickets, update_ticket_status, clear_all_tickets, get_ticket_details
 
 from batch_models import InspectionSession, UploadedImage, InspectionMode, SystemGroup
 from batch_processor import process_batch
@@ -803,7 +803,7 @@ with st.sidebar:
                     f"Active Asset diagnostics context: {ctx}. "
                     "Provide extremely clear, concise, actionable maintenance advice."
                 ),
-                tools=[search_sops, create_ticket, get_open_tickets, update_ticket_status],
+                tools=[search_sops, create_ticket, get_open_tickets, update_ticket_status, get_ticket_details],
                 temperature=0.2,
             )
             chat = client.chats.create(model="gemini-2.5-flash", config=config)
