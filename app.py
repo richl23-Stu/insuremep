@@ -55,10 +55,10 @@ st.markdown("""
 # ── Floor plan and room data ─────────────────────────────────────────────────
 FLOOR_PLANS = {
     "Floor 1 (Ground)": os.path.join(BASE_DIR, "assets/IMG_4999.JPG"),
-    "Floor 2":          os.path.join(BASE_DIR, "assets/IMG_5001.JPG"),
-    "Floor 3":          os.path.join(BASE_DIR, "assets/IMG_5002.JPG"),
-    "Floor 4":          os.path.join(BASE_DIR, "assets/IMG_5003.JPG"),
-    "Floor 5 (Roof)":   os.path.join(BASE_DIR, "assets/IMG_5004.JPG"),
+    "Floor 2":          os.path.join(BASE_DIR, "assets/floor_2_blueprint.png"),
+    "Floor 3":          os.path.join(BASE_DIR, "assets/floor_3_blueprint.png"),
+    "Floor 4":          os.path.join(BASE_DIR, "assets/floor_4_blueprint.png"),
+    "Floor 5 (Roof)":   os.path.join(BASE_DIR, "assets/floor_5_blueprint.png"),
 }
 
 ROOM_DATA = {
@@ -1282,12 +1282,25 @@ with tab_blueprints:
     
     st.markdown(f"#### 🗺️ Current Location: **{selected_floor}** — Room **{selected_room}**")
     
+    # Context-aware blueprint display: if Room 1200 is selected on Floor 1, display the detail Room JPG.
     blueprint_path = FLOOR_PLANS.get(selected_floor)
+    is_room_detail = False
+    if selected_floor == "Floor 1 (Ground)" and selected_room == "1200":
+        dss_path = os.path.join(BASE_DIR, "assets/sb1_1200_dss.jpg")
+        if os.path.exists(dss_path):
+            blueprint_path = dss_path
+            is_room_detail = True
+            
     if blueprint_path and os.path.exists(blueprint_path):
+        caption_text = (
+            f"SB1 Science Library · Room {selected_room} Detailed Diagnostics Layout"
+            if is_room_detail else
+            f"SB1 Science Library · {selected_floor} Blueprint View (Highlight Room: {selected_room})"
+        )
         st.image(
             blueprint_path,
             use_container_width=True,
-            caption=f"SB1 Science Library · {selected_floor} Blueprint View (Highlight Room: {selected_room})",
+            caption=caption_text,
         )
     else:
         st.warning(
