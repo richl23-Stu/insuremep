@@ -14,6 +14,9 @@ from test_end_to_end import analyze_image_with_gemini
 from rl_sop_integration import train_q_learning
 from google import genai
 from google.genai import types
+import importlib
+import ticket_manager
+importlib.reload(ticket_manager)
 from ticket_manager import search_sops, create_ticket, get_open_tickets, update_ticket_status, clear_all_tickets, get_ticket_details
 
 from batch_models import InspectionSession, UploadedImage, InspectionMode, SystemGroup
