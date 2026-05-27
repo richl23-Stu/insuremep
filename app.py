@@ -54,7 +54,7 @@ st.markdown("""
 
 # ── Floor plan and room data ─────────────────────────────────────────────────
 FLOOR_PLANS = {
-    "Floor 1 (Ground)": os.path.join(BASE_DIR, "assets/IMG_4999.JPG"),
+    "Floor 1 (Ground)": os.path.join(BASE_DIR, "assets/floor_1_blueprint.jpg"),
     "Floor 2":          os.path.join(BASE_DIR, "assets/floor_2_blueprint.png"),
     "Floor 3":          os.path.join(BASE_DIR, "assets/floor_3_blueprint.png"),
     "Floor 4":          os.path.join(BASE_DIR, "assets/floor_4_blueprint.png"),
