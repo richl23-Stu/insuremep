@@ -16,6 +16,10 @@ from google import genai
 from google.genai import types
 from ticket_manager import search_sops, create_ticket, get_open_tickets, update_ticket_status, clear_all_tickets
 
+from batch_models import InspectionSession, UploadedImage, InspectionMode, SystemGroup
+from batch_processor import process_batch
+from batch_mermaid_builder import build_batch_mermaid
+
 # Configure page
 st.set_page_config(
     layout="wide",
@@ -818,11 +822,12 @@ with st.sidebar:
         st.rerun()
 
 # ── Interactive Tabs ─────────────────────────────────────────────────────────
-tab_onboarding, tab_maintenance, tab_blueprints, tab_registry = st.tabs([
+tab_onboarding, tab_maintenance, tab_blueprints, tab_registry, tab_batch_onboarding = st.tabs([
     "📸 Onboarding Asset",
     "📋 Current Maintenance",
     "🗺️ Floor Plans",
     "📦 Asset Registry",
+    "🗂️ Batch Onboarding",
 ])
 
 # ── Tab 1: Onboarding Asset ──────────────────────────────────────────────────
@@ -1441,6 +1446,198 @@ with st.expander("🛠️ Advanced Developer Panel"):
         res = clear_all_tickets()
         st.success(res)
         st.rerun()
+
+# ── Tab 5: Batch Onboarding ──────────────────────────────────────────────────
+with tab_batch_onboarding:
+    st.header("🗂️ Batch Asset Onboarding")
+    st.caption("Upload multiple equipment photos to bulk onboard assets, detect cross-system dependencies, and verify in a room topology diagram.")
+
+    col_bt1, col_bt2 = st.columns([1, 1], gap="large")
+
+    with col_bt1:
+        st.subheader("1. Session Configuration")
+        bt_session_name = st.text_input("Session Name:", value="Room Scan Session", key="bt_sess_name")
+        bt_mode = st.selectbox("Inspection Mode:", [mode.value for mode in InspectionMode], index=3, key="bt_insp_mode")
+        bt_def_sys = st.selectbox("Default System Group:", [sys.value for sys in SystemGroup if sys != SystemGroup.UNKNOWN], index=0, key="bt_def_sys_group")
+        
+        st.divider()
+        st.subheader("2. Upload Multiple Photos")
+        uploaded_files = st.file_uploader(
+            "📷 Select Multiple Images (JPG/PNG)",
+            type=["png", "jpg", "jpeg"],
+            accept_multiple_files=True,
+            key="bt_uploader"
+        )
+        
+        if uploaded_files:
+            st.markdown(f"**Uploaded Files ({len(uploaded_files)}):**")
+            file_data = []
+            for f in uploaded_files:
+                file_data.append({"Filename": f.name, "Size (KB)": round(len(f.getvalue()) / 1024, 2), "Status": "Ready"})
+            st.dataframe(file_data, use_container_width=True)
+
+    with col_bt2:
+        st.subheader("3. Batch AI Pipeline & Topology")
+        use_mock_ai = st.checkbox("Use Mock AI (Instant Match via Filename Patterns)", value=True, key="bt_use_mock_ai")
+        
+        if uploaded_files:
+            run_btn = st.button("🚀 Run Batch AI Processing", type="primary", use_container_width=True, key="btn_run_batch")
+            
+            if run_btn:
+                from batch_models import InspectionSession, UploadedImage, InspectionMode as ModelInspectionMode, SystemGroup as ModelSystemGroup
+                
+                session_obj = InspectionSession(
+                    session_name=bt_session_name,
+                    building=selected_building,
+                    floor=selected_floor,
+                    zone="Central Distribution Duct Zone" if "Floor" in selected_floor else "Roof Plant HVAC Deck",
+                    room=selected_room,
+                    inspection_mode=ModelInspectionMode(bt_mode),
+                    default_system_group=ModelSystemGroup(bt_def_sys),
+                    created_by=st.session_state.get("ob_assign_id", "Operator")
+                )
+                
+                images_list = []
+                contents_list = []
+                for f in uploaded_files:
+                    images_list.append(UploadedImage(filename=f.name))
+                    contents_list.append(f.getvalue())
+                
+                progress_bar = st.progress(0.0)
+                status_text = st.empty()
+                
+                def update_progress(pct, text):
+                    progress_bar.progress(pct)
+                    status_text.text(text)
+                    
+                try:
+                    result = process_batch(
+                        session=session_obj,
+                        images=images_list,
+                        file_contents=contents_list,
+                        use_mock_ai=use_mock_ai,
+                        progress_callback=update_progress
+                    )
+                    
+                    st.session_state["last_batch_result"] = result
+                    progress_bar.progress(1.0)
+                    status_text.text("Batch processing complete!")
+                    st.success("✅ Batch Onboarding Pipeline processed successfully!")
+                except Exception as e:
+                    st.error(f"Error in batch pipeline: {e}")
+                    
+            if "last_batch_result" in st.session_state:
+                res = st.session_state["last_batch_result"]
+                
+                st.divider()
+                st.markdown("### 📊 Processing Summary")
+                m1, m2, m3, m4 = st.columns(4)
+                m1.metric("Assets Detected", res.summary["total_assets_detected"])
+                m2.metric("Critical Risk", res.summary["critical_assets"])
+                m3.metric("Manual Reviews", res.summary["manual_review_required"])
+                m4.metric("Relationships", res.summary["relationships_detected"])
+                
+                st.markdown("#### 📦 Deduplicated Asset Catalog")
+                asset_rows = []
+                for a in res.merged_assets:
+                    asset_rows.append({
+                        "Asset ID": a.asset_id[:8].upper(),
+                        "Name": a.asset_name,
+                        "Type": a.asset_type,
+                        "System Group": a.system_group.value,
+                        "Risk Score": f"{a.risk_score}/10",
+                        "Condition": a.condition,
+                        "SOP Code": a.sop_code,
+                        "Confidence": f"{round(a.confidence * 100, 1)}%"
+                    })
+                st.dataframe(asset_rows, use_container_width=True)
+                
+                if res.relationships:
+                    st.markdown("#### 🔗 Inferred Topology Relationships")
+                    rel_rows = []
+                    asset_id_to_name = {a.asset_id: a.asset_name for a in res.merged_assets}
+                    for r in res.relationships:
+                        rel_rows.append({
+                            "Source Asset": asset_id_to_name.get(r.source_asset_id, "Unknown"),
+                            "Relationship": r.relationship_type.value.upper(),
+                            "Target Asset": asset_id_to_name.get(r.target_asset_id, "Unknown"),
+                            "Confidence": f"{round(r.confidence * 100, 1)}%"
+                        })
+                    st.dataframe(rel_rows, use_container_width=True)
+                
+                st.markdown("#### 🔀 Dynamic Dependency Topology Map")
+                mermaid_code = build_batch_mermaid(res)
+                render_mermaid(mermaid_code, height=420)
+                
+                st.divider()
+                save_c1, save_c2 = st.columns([2, 1])
+                with save_c1:
+                    save_operator = st.text_input("👤 Assign Operator:", value="Batch Import Process", key="bt_save_operator")
+                with save_c2:
+                    st.write("")
+                    st.write("")
+                    commit_btn = st.button("💾 Save Batch to Registry", type="primary", use_container_width=True, key="btn_commit_batch")
+                    
+                if commit_btn:
+                    with st.spinner("Saving batch to database..."):
+                        import uuid as _uuid
+                        conn = sqlite3.connect(DB_PATH)
+                        cursor = conn.cursor()
+                        
+                        assets_saved = 0
+                        tickets_created = 0
+                        
+                        for asset in res.merged_assets:
+                            asset_id = f"AST-{_uuid.uuid4().hex[:8].upper()}"
+                            cursor.execute("""
+                                INSERT INTO asset_catalog
+                                (asset_id, asset_name, system_group, location, floor, room,
+                                 risk_score, risk_tier, sop_code, tags, estimated_age,
+                                 leak_detected, corrosion_found, valve_accessible,
+                                 onboarded_by, notes)
+                                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                            """, (
+                                asset_id,
+                                asset.asset_name,
+                                asset.system_group.value,
+                                f"{asset.floor} - {asset.room}",
+                                asset.floor,
+                                asset.room,
+                                asset.risk_score,
+                                "High" if asset.risk_score >= 8 else ("Medium" if asset.risk_score >= 5 else "Low"),
+                                asset.sop_code,
+                                "batch_import",
+                                5,
+                                1 if "leak" in asset.condition.lower() else 0,
+                                1 if "corrosion" in asset.condition.lower() else 0,
+                                1,
+                                save_operator,
+                                f"Batch Onboarded via Session: {res.session.session_name}"
+                            ))
+                            assets_saved += 1
+                            
+                            if asset.risk_score >= 5:
+                                ticket_id = f"TCK-{_uuid.uuid4().hex[:8].upper()}"
+                                cursor.execute("""
+                                    INSERT INTO tickets 
+                                    (ticket_id, asset_id, description, sop_code, location, assign_id, status)
+                                    VALUES (?, ?, ?, ?, ?, ?, 'OPEN')
+                                """, (
+                                    ticket_id,
+                                    asset_id,
+                                    f"Batch auto-ticket: {asset.condition}. Risk level: {asset.risk_score}/10.",
+                                    asset.sop_code,
+                                    f"{asset.floor} - {asset.room}",
+                                    save_operator
+                                ))
+                                tickets_created += 1
+                                
+                        conn.commit()
+                        conn.close()
+                        st.success(f"🎉 Successfully imported **{assets_saved}** assets & created **{tickets_created}** active tickets!")
+                        
+        else:
+            st.info("⬅️ Please upload multiple images in the left column to get started.")
 
 st.divider()
 st.caption(
