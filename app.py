@@ -640,7 +640,7 @@ def get_asset_context_by_ticket_data(active_t: dict) -> dict:
         ]
         
     return {
-        "building": "SB1 - Science Library",
+        "building": "SB1 - Business School",
         "floor": floor_str,
         "zone": zone_str,
         "room": room_str,
@@ -693,7 +693,7 @@ st.divider()
 st.subheader("🌐 Global Location Filter")
 lc1, lc2, lc3 = st.columns(3)
 with lc1:
-    selected_building = st.selectbox("🏫 Building", ["SB1 - Science Library"])
+    selected_building = st.selectbox("🏫 Building", ["SB1 - Business School"])
 with lc2:
     selected_floor = st.selectbox("🏗️ Floor", list(ROOM_DATA.keys()))
 with lc3:
@@ -1293,9 +1293,9 @@ with tab_blueprints:
             
     if blueprint_path and os.path.exists(blueprint_path):
         caption_text = (
-            f"SB1 Science Library · Room {selected_room} Detailed Diagnostics Layout"
+            f"SB1 Business School · Room {selected_room} Detailed Diagnostics Layout"
             if is_room_detail else
-            f"SB1 Science Library · {selected_floor} Blueprint View (Highlight Room: {selected_room})"
+            f"SB1 Business School · {selected_floor} Blueprint View (Highlight Room: {selected_room})"
         )
         st.image(
             blueprint_path,
